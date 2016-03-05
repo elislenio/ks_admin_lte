@@ -1,0 +1,66 @@
+{% extends 'KsAdminLteThemeBundle::index.html.twig' %}
+{% set name = crud['name'] %}
+{% set urls = crud['urls'] %}
+{% set grants = crud['grants'] %}
+{% if crud['url_param']['create']|default(false) %}
+{% set param_create = '/' ~ crud['url_param']['create'] %}
+{% endif %}
+
+{% block inlinecss %}
+	{{ include('KsAdminLteThemeBundle:fragments:crud1_css.html.twig') }}
+{% endblock %}
+
+{% block pageheader %}{{ theme.page_header(hdr|default(false)) }}{% endblock %}
+{% block breadcrumb %}{{ theme.breadcrumb(bc|default(false)) }}{% endblock %}
+
+{% block content %}	
+	<div class="box">
+		<div class="box-header">
+			<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" style="margin-bottom: 10px;">
+			  <div class="btn-group" role="group" aria-label="left group">
+			  </div>
+			  <div class="btn-group pull-right" role="group" aria-label="middle group">
+			{% if grants['MASK_CREATE'] %}
+				<button id="{{ name }}_btn_add" onclick="addRecord()" type="button" class="btn btn-default" aria-label="Agregar"><span class="glyphicon glyphicon-plus text-info" aria-hidden="true"></span> Agregar</button>
+			{% endif %}
+			  </div>
+			</div>
+		</div>
+		<div class="box-body">
+			{{ knp_menu_render(knpmenu, {'template': 'KsAdminLteThemeBundle:Menu:menu_editor.html.twig', 'extra': {'grants': grants} }) }}
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function addRecord()
+{
+	$(location).attr('href', "{{ path(urls['create']) ~ param_create|default('') }}");
+}
+function editRecord(id)
+{
+	$(location).attr('href', "{{ path(urls['edit'])  }}/" + id);
+}
+function deleteRecord(id)
+{
+	var v_data = {};
+	v_data.ids = [];
+	v_data.ids.push(id);
+	
+	$.ajax({
+		url: "{{ path(urls['delete']) }}",
+		method: "POST",
+		dataType: 'json',
+		data: v_data
+	}).done(function(data) {
+		if( data.result == 'error')
+		{
+			show_error('error');
+			return;
+		}
+		location.reload();
+	});
+}
+</script>
+{% endblock %}

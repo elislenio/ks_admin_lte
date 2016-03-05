@@ -1,0 +1,16 @@
+{% extends 'KsAdminLteThemeBundle::index.html.twig' %}
+
+{% block inlinecss %}
+	{{ include('KsAdminLteThemeBundle:fragments:crud1_css.html.twig') }}
+{% endblock %}
+
+{% block pageheader %}{{ theme.page_header(hdr|default(false)) }}{% endblock %}
+{% block breadcrumb %}{{ theme.breadcrumb(bc|default(false)) }}{% endblock %}
+
+{% block content %}	
+	<div class="box">
+		<div class="box-body">
+			Bienvenido.
+		</div>
+	</div>
+{% endblock %}

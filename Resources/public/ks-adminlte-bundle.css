@@ -1,0 +1,54 @@
+.flashbag {
+	margin-top: 20px;
+	margin-bottom: 0px;
+}
+
+.ks-dt-row{
+	margin-left: 0px;
+    margin-right: 0px;
+}
+
+.ks-dt-col{
+	overflow-x: auto;
+	padding-left: 0px;
+}
+
+@media (min-width: 768px) {
+  .ks-dt {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .ks-dt {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 768px) {
+  .responsive-btn-text {
+    display: none;
+  }
+}
+
+/* DT Child Rows */
+/*
+table.dataTable.dtr-column>tbody>tr>td.control:before, table.dataTable.dtr-column>tbody>tr>th.control:before {
+	top: inherit !important;
+	left: inherit !important;
+	margin-top: inherit !important;
+	margin-left: inherit !important;
+	position: inherit !important;
+	display: inherit !important;
+	padding: 2px !important;
+    line-height: 1.5 !important;
+	box-shadow: inherit !important;
+	border: 1px solid #ccc !important;
+	font: normal normal normal 12px FontAwesome !important;
+	content: "\f00e" !important;
+	border-radius: 3px !important;
+    text-indent: 2px !important;
+	color: #337ab7 !important;
+	background-color: white !important;
+}
+*/

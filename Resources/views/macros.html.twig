@@ -1,0 +1,39 @@
+{% macro user_image(picture) %}
+{% set file = picture|default('shadow_user.png') %}
+{{ asset('ks-adminlte-bundle/images/'~file) }}
+{% endmacro %}
+
+{% macro page_header(hdr) %}
+{% if hdr %}
+	{{ hdr['title'] }} <small>{{ hdr['small'] }}</small>
+{% endif %}
+{% endmacro %}
+
+{% macro breadcrumb(bc) %}
+{% if bc %}
+	<ol class="breadcrumb">
+	{% for i in bc %}
+		{% if i['route']|default(false) %}
+			<li><a href="{{ i['route'] }}">{{ i['description'] }}</a></li>
+		{% else %}
+			<li class="active">{{ i['description'] }}</li>
+		{% endif %}
+	{% endfor %}
+  </ol>
+{% endif %}
+{% endmacro %}
+
+{% macro flashbag() %}
+	{% for msg in app.session.flashbag.get('error') %}
+		<div class="alert alert-danger flashbag" role="alert">{{ msg }}</div>
+	{% endfor %}
+	{% for msg in app.session.flashbag.get('warning') %}
+		<div class="alert alert-warning flashbag" role="alert">{{ msg }}</div>
+	{% endfor %}
+	{% for msg in app.session.flashbag.get('info') %}
+		<div class="alert alert-info flashbag" role="alert">{{ msg }}</div>
+	{% endfor %}
+	{% for msg in app.session.flashbag.get('success') %}
+		<div class="alert alert-success flashbag" role="alert">{{ msg }}</div>
+	{% endfor %}
+{% endmacro %}

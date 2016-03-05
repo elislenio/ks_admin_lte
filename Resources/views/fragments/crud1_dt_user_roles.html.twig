@@ -1,0 +1,17 @@
+{% import 'KsAdminLteThemeBundle:fragments:crud1_macros.html.twig' as c1m %}
+	this.table = this.table.DataTable({
+		{{ c1m.dt_ajax(urls['list']) }},
+		columns: [
+		{% if grants['MASK_DELETE']|default(false) %}
+			{{ c1m.dt_checkbox('id') }},
+		{% endif %}
+			{ data: "user", title: "Usuario" },
+			{ data: "role", title: "Rol" },
+			{ data: "char_assigned", title: "Fecha de asignación", orderData: 4},
+			{ data: "assigned", visible: false}
+		{% if grants['MASK_DELETE']|default(false) %}
+			,{{ c1m.dt_action_delete('id', name) }}
+		{% endif %}
+		],
+		order: [[ 1, "asc" ]]
+	});

@@ -1,0 +1,43 @@
+{% extends 'KsAdminLteThemeBundle::base.html.twig' %}
+
+{% block bodyopentag %}
+{{ include('KsAdminLteThemeBundle:fragments:index_body_open_tag.html.twig') }}
+{% endblock %}
+
+{% block body %}
+	<div class="wrapper">
+		<!-- header -->
+		{{ include('KsAdminLteThemeBundle:fragments:index_header.html.twig') }}
+		<!-- Left Sidebar -->
+		{{ include('KsAdminLteThemeBundle:fragments:index_sidebar_left.html.twig') }}
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+
+			<!-- flashbag -->
+			<section id="flashbag" class="content-header">
+				{{ theme.flashbag() }}
+			</section>
+
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+			  <h1>{% block pageheader %}{% endblock %}</h1>
+			  {% block breadcrumb %}{% endblock %}
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+				<!-- content -->
+				<div class="row">
+					<div class="col-xs-12">
+					{% block content %}{% endblock %}
+					</div>
+				</div>
+			</section><!-- /.content -->
+
+		</div><!-- /.content-wrapper -->
+		<!-- footer -->
+		{{ include('KsAdminLteThemeBundle:fragments:index_footer.html.twig') }}
+		<!-- Right Sidebar -->
+		{{ include('KsAdminLteThemeBundle:fragments:index_sidebar_right.html.twig') }}
+	</div><!-- ./wrapper -->
+{% endblock %}

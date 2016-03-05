@@ -1,0 +1,131 @@
+{% macro dt_ajax(url) %}
+		ajax: {
+			url: '{{ path(url) }}',
+			type: 'POST',
+			data: function ( d ) {
+				self.last_post_data = $.extend( {}, d, {"extra_search": self.form_filters.serializeArray()} );
+				return self.last_post_data;
+			}
+		}
+{% endmacro %}
+
+{% macro dt_checkbox(data) %}
+			{ 
+				data: "{{ data }}",
+				title: "",
+				width: "10px",
+				searchable: false,
+				orderable: false,
+				className: 'select-checkbox',
+				render: function (data, type, full, meta) {return '';}
+			}
+{% endmacro %}
+
+{% macro dt_action_col(data, title, name, fnc, btn_title, icon) %}
+			{ 
+				data: "{{ data }}",
+				title: "{{ title }}",
+				width: "10px",
+				searchable: false,
+				orderable: false,
+				render: function (data, type, full, meta) {
+					return '<button onclick="crud_{{ name }}.{{ fnc }}(\'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="{{ btn_title }}" title="{{ btn_title }}"><span class="{{ icon }}" aria-hidden="true"></span></button>';
+				}
+			}
+{% endmacro %}
+
+{% macro dt_action_edit(data, name) %}
+			{ 
+				data: "{{ data }}",
+				title: "",
+				width: "10px",
+				searchable: false,
+				orderable: false,
+				render: function (data, type, full, meta) {
+					return '<button onclick="crud_{{ name }}.editRecord(\'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="Editar" title="Editar"><span class="glyphicon glyphicon-edit text-info" aria-hidden="true"></span></button>';
+				}
+			}
+{% endmacro %}
+
+{% macro dt_action_delete(data, name) %}
+			{ 
+				data: "{{ data }}",
+				title: "",
+				width: "10px",
+				searchable: false,
+				orderable: false,
+				render: function (data, type, full, meta) {
+					return '<button onclick="crud_{{ name }}.deleteRecord(\'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="Eliminar" title="Eliminar"><span class="glyphicon glyphicon-trash text-danger" aria-hidden="true"></span></button>';
+				}
+			}
+{% endmacro %}
+
+{% macro dt_expand_control(name) %}
+			{ 
+				data: null,
+				title: "",
+				width: "10px",
+				searchable: false,
+				orderable: false,
+				render: function (data, type, full, meta) {
+					return '<button onclick="crud_{{ name }}.expandRecord(event, \'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="Ver más" title="Ver más"><span class="glyphicon glyphicon-zoom-in text-info" aria-hidden="true"></span></button>';
+				}
+			}
+{% endmacro %}
+
+{% macro dt_child_row_control() %}
+			{ 
+				data: null, 
+				title: "", 
+				width: "10px",
+				searchable: false,
+				orderable: false, 
+				className: "control",
+				render: function (data, type, full, meta) {return '';}
+			}
+{% endmacro %}
+
+{% macro filter_input_1(id, name, value, f) %}
+	<input id="{{ id }}" name="{{ name }}" type="{{ f['type'] }}" value="{{ value }}" class="form-control input-sm" placeholder="{{ f['label'] }}" style="display:inline;" {{ f['extra']|default('') }}>
+{% endmacro %}
+
+{% macro select_condition_string(id, name, value) %}
+	{% if value is not defined %}
+	{% set default = 'is' %}
+	{% endif %}
+	<select id="{{ id }}" name="{{ name|default(id) }}" class="form-control input-sm ks-cond-filter" style="width:auto;display:none;">
+		<option value="is"{% if value == 'is' %} selected{% endif %}>=</option>
+		<option value="begins"{% if value == 'begins' %} selected{% endif %}>comienza con</option>
+		<option value="contains"{% if value == 'contains' %} selected{% endif %}>contiene</option>
+		<option value="ends"{% if value == 'ends' %} selected{% endif %}>termina en</option>
+		<option value="isnull"{% if value == 'isnull' %} selected{% endif %}>es nulo</option>
+		<option value="isnotnull"{% if value == 'isnotnull' %} selected{% endif %}>no es nulo</option>
+	</select>
+{% endmacro %}
+
+{% macro select_condition_number(id, name, value) %}
+	{% if value is not defined %}
+	{% set value = 'eq' %}
+	{% endif %}
+	<select id="{{ id }}" name="{{ name|default(id) }}" class="form-control input-sm ks-cond-filter" style="width:auto;display:none;">
+		<option value="eq"{% if value == 'eq' %} selected{% endif %}>=</option>
+		<option value="ne"{% if value == 'ne' %} selected{% endif %}>!=</option>
+		<option value="gt"{% if value == 'gt' %} selected{% endif %}>mayor</option>
+		<option value="ge"{% if value == 'ge' %} selected{% endif %}>mayor igual</option>
+		<option value="lt"{% if value == 'lt' %} selected{% endif %}>menor</option>
+		<option value="le"{% if value == 'le' %} selected{% endif %}>menor igual</option>
+		<option value="isnull"{% if value == 'isnull' %} selected{% endif %}>es nulo</option>
+		<option value="isnotnull"{% if value == 'isnotnull' %} selected{% endif %}>no es nulo</option>
+	</select>
+{% endmacro %}
+
+{% macro select_value_bool1(id, name, value) %}
+	{% if value is not defined %}
+	{% set value = 'null' %}
+	{% endif %}
+	<select id="{{ id }}" name="{{ name|default(id) }}" class="form-control input-sm" style="width:auto;">
+		<option value=""{% if value == 'null' %} selected{% endif %}></option>
+		<option value="1"{% if value == '1' %} selected{% endif %}>Si</option>
+		<option value="0"{% if value == '0' %} selected{% endif %}>No</option>
+	</select>
+{% endmacro %}

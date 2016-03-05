@@ -1,0 +1,50 @@
+{% import 'KsAdminLteThemeBundle:fragments:crud1_macros.html.twig' as c1m %}
+	this.table = this.table.DataTable({
+		{{ c1m.dt_ajax(urls['list']) }},
+		select: false,
+		columns: [
+			{ data: "id", title: "Id" },
+			{ data: "role", title: "Rol" },
+			{ data: "ac", title: "Función" },
+			{ data: "mask", title: "Lectura",
+				searchable: false,
+				orderable: false,
+				render: function (data, type, full, meta) {
+					var mask = {{ constant('Symfony\\Component\\Security\\Acl\\Permission\\MaskBuilder::MASK_VIEW') }};
+					return getGrantedIconView(mask, data);
+				}
+			},
+			{ data: "mask", title: "Alta",
+				searchable: false,
+				orderable: false,
+				render: function (data, type, full, meta) {
+					var mask = {{ constant('Symfony\\Component\\Security\\Acl\\Permission\\MaskBuilder::MASK_CREATE') }};
+					return getGrantedIconView(mask, data);
+				}
+			},
+			{ data: "mask", title: "Modificación",
+				searchable: false,
+				orderable: false,
+				render: function (data, type, full, meta) {
+					var mask = {{ constant('Symfony\\Component\\Security\\Acl\\Permission\\MaskBuilder::MASK_EDIT') }};
+					return getGrantedIconView(mask, data);
+				}
+			},
+			{ data: "mask", title: "Baja",
+				searchable: false,
+				orderable: false,
+				render: function (data, type, full, meta) {
+					var mask = {{ constant('Symfony\\Component\\Security\\Acl\\Permission\\MaskBuilder::MASK_DELETE') }};
+					return getGrantedIconView(mask, data);
+				}
+			}
+		{% if grants['MASK_EDIT']|default(false) %}
+			,{{ c1m.dt_action_edit('id', name) }}
+		{% endif %}
+		{% if grants['MASK_DELETE']|default(false) %}
+			,{{ c1m.dt_action_delete('id', name) }}
+		{% endif %}
+		],
+		rowId: 'id',
+		order: [[ 1, "asc" ], [ 2, "asc" ]]
+	});

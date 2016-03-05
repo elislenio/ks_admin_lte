@@ -1,0 +1,58 @@
+{% import 'KsAdminLteThemeBundle::macros.html.twig' as theme %}
+<!DOCTYPE html>
+<html>
+<head>
+	<!-- meta tags -->
+	{{ include('KsAdminLteThemeBundle:fragments:base_header_meta.html.twig') }}
+	<!-- title -->
+	{% block title %}
+	{{ include('KsAdminLteThemeBundle:fragments:base_header_title.html.twig') }}
+	{% endblock %}
+	<link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}" />
+	<!-- Bootstrap 3.3.5 -->
+	<link href="{{ asset('ks-adminlte-bundle/bower_components/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
+
+	<!-- Font Awesome -->
+	<link href="{{ asset('ks-adminlte-bundle/bower_components/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet">
+
+	<!-- CSS -->
+	{{ include('KsAdminLteThemeBundle:fragments:base_header_css.html.twig') }}
+	
+	<!-- AdminLTE Theme style -->
+    <link rel="stylesheet" href="{{ asset('ks-adminlte-bundle/dist/css/AdminLTE.min.css') }}"/>
+	<link rel="stylesheet" href="{{ asset('ks-adminlte-bundle/ks-adminlte-bundle.css') }}"/>
+	<!-- Skin css -->
+	{{ include('KsAdminLteThemeBundle:fragments:base_header_skin_css.html.twig') }}
+	
+	{% block stylesheets %}{% endblock %}
+	
+</head>
+{% block bodyopentag %}
+<body>
+{% endblock %}
+
+	{% block inlinecss %}{% endblock %}
+	{% block body %}{% endblock %}
+	
+	<!-- jQuery -->
+    <script src="{{ asset('ks-adminlte-bundle/bower_components/jquery/dist/jquery.min.js') }}"></script>
+	<!-- jQuery UI 1.11.4 -->
+    <script src="{{ asset('ks-adminlte-bundle/bower_components/jquery-ui/jquery-ui.min.js') }}"></script>
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <script>
+      $.widget.bridge('uibutton', $.ui.button);
+    </script>
+    <!-- Bootstrap 3.3.5 -->
+    <script src="{{ asset('ks-adminlte-bundle/bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
+	<!-- AdminLTE App -->
+    <script src="{{ asset('ks-adminlte-bundle/dist/js/app.min.js') }}"></script>
+    <!-- Ks-AdminLte-Bundle JavaScript -->
+    <script src="{{ asset('ks-adminlte-bundle/ks-adminlte-bundle.js') }}"></script>
+	
+	<!-- Js -->
+	{{ include('KsAdminLteThemeBundle:fragments:base_body_js.html.twig') }}
+	
+	{% block javascripts %}{% endblock %}
+	
+</body>
+</html>

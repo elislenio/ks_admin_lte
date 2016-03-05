@@ -1,0 +1,29 @@
+{% extends 'KsAdminLteThemeBundle::index.html.twig' %}
+
+{% block inlinecss %}
+	{{ include('KsAdminLteThemeBundle:fragments:crud1_css.html.twig') }}
+{% endblock %}
+
+{% block pageheader %}{{ theme.page_header(hdr|default(false)) }}{% endblock %}
+{% block breadcrumb %}{{ theme.breadcrumb(bc|default(false)) }}{% endblock %}
+
+{% block content %}	
+	<div class="box">
+		<div class="box-body">
+			{{ include('KsAdminLteThemeBundle:fragments:crud1.html.twig', { 'crud': crud }) }}
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function getGrantedIconView(mask, granted)
+{
+	if (mask&granted)	
+		return '<span class="glyphicon glyphicon-ok-sign text-success" aria-hidden="true"></span>'; 
+	else 
+		return '<span class="glyphicon glyphicon-remove-sign text-danger" aria-hidden="true"></span>';
+}
+</script>
+	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud }) }}
+{% endblock %}

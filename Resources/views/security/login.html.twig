@@ -1,0 +1,70 @@
+{% extends 'KsAdminLteThemeBundle::base.html.twig' %}
+
+{% block bodyopentag %}
+<body class="hold-transition login-page">
+{% endblock %}
+
+{% block body %}
+<div class="container">
+		
+	<!-- flashbag -->
+	<div class="row">
+		<div class="col-md-6 col-md-offset-3">
+			{{ theme.flashbag() }}
+		</div>
+	</div>
+        
+	<!-- login_form -->
+	{% block login_form %}
+	<div class="login-box">
+	
+      <div class="login-logo">
+	  <!-- header -->
+	  {{ include('KsAdminLteThemeBundle:fragments:login_header.html.twig') }}
+      </div>
+	  
+      <div class="login-box-body">
+        <p class="login-box-msg">Ingreso al sistema</p>
+        <form role="form" action="{{ path('login_check') }}" method="post">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+          <div class="form-group has-feedback">
+            <input class="form-control" type="text" id="username" name="_username" value="{{ username }}" required="required" placeholder="Usuario o email" autofocus>
+            <span class="glyphicon glyphicon-user form-control-feedback"></span>
+          </div>
+          <div class="form-group has-feedback">
+            <input class="form-control" type="password" id="password" name="_password" required="required" value="" placeholder="Contraseña">
+            <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+          </div>
+          <div class="row">
+            <div class="col-xs-8">
+			  <!--
+              <div class="checkbox icheck">
+                <label>
+                  <input type="checkbox"> Remember Me
+                </label>
+              </div>
+			  -->
+            </div><!-- /.col -->
+            <div class="col-xs-4">
+			  <input type="submit" class="btn btn-primary btn-block btn-flat" id="_submit" name="_submit" value="Acceder" />
+            </div><!-- /.col -->
+          </div>
+        </form>
+		<!-- social-auth-links-->
+		<!--
+        <div class="social-auth-links text-center">
+          <p>- OR -</p>
+          <a href="#" class="btn btn-block btn-social btn-facebook btn-flat"><i class="fa fa-facebook"></i> Sign in using Facebook</a>
+          <a href="#" class="btn btn-block btn-social btn-google btn-flat"><i class="fa fa-google-plus"></i> Sign in using Google+</a>
+        </div>
+		-->
+		<!--
+        <a href="#">I forgot my password</a><br>
+        <a href="register.html" class="text-center">Register a new membership</a>
+		-->
+      </div><!-- /.login-box-body -->
+    </div><!-- /.login-box -->
+	{% endblock login_form %}
+		
+</div>
+{% endblock body %}

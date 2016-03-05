@@ -1,0 +1,45 @@
+{% extends 'KsAdminLteThemeBundle::index.html.twig' %}
+
+{% block pageheader %}{{ theme.page_header(hdr|default(false)) }}{% endblock %}
+{% block breadcrumb %}{{ theme.breadcrumb(bc|default(false)) }}{% endblock %}
+
+{% block content %}
+<div class="box">
+	<div class="box-body">
+	  <div class="row">
+		<div class="col-md-8">
+			{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+			<div class="row">
+				<div class="col-md-10">
+					{{ form_row(form.generated_password) }}
+				</div>
+				<div class="col-md-2">
+					<div class="form-group">
+						<label class="control-label" for="form_gen_pwd" style="display:block;">&nbsp;</label>
+						{{ form_widget(form.gen_pwd) }}
+					</div>
+				</div>
+			</div>
+			{{ form_row(form.save) }}
+			{{ form_end(form) }}
+		</div>
+	  </div> 
+	</div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function genPwd()
+{
+	$.ajax({
+		url: "{{ path('users_pwd_gen') }}"
+	}).done(function(data) {
+		if (data.result != 'ok')
+			show_error(data.result);
+		else
+			$('#user_pwd_reset_generated_password').val(data.pwd);
+	});
+}
+</script>
+{% endblock %}

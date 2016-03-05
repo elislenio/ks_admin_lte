@@ -1,0 +1,95 @@
+{% import 'KsAdminLteThemeBundle:fragments:crud1_macros.html.twig' as c1m %}
+{% set name = crud['name'] %}
+{% set grants = crud['grants'] %}
+{% set urls = crud['urls'] %}
+{% set filters = crud['filters'] %}
+
+<div class="panel panel-primary">
+  <div class="panel-body">
+
+	<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" style="margin-bottom: 10px;">
+	  <div class="btn-group" role="group" aria-label="left group">
+		<button id="{{ name }}_btn_filters" type="button" class="btn btn-default" aria-label="Buscar" title="Buscar" data-toggle="collapse" data-target="#{{ name }}_collapseFilters" aria-expanded="false" aria-controls="{{ name }}_collapseFilters"><span class="glyphicon glyphicon-filter text-info" aria-hidden="true"></span></button>
+		<button id="{{ name }}_btn_reload" type="button" class="btn btn-default" aria-label="Recargar" title="Recargar los datos"><span class="glyphicon glyphicon-refresh text-info" aria-hidden="true"></span></button>
+		<button id="{{ name }}_btn_export" type="button" class="btn btn-default" aria-label="Exportar" title="Exportar los datos"><span class="glyphicon glyphicon-download-alt text-info" aria-hidden="true"></span></button>
+	  </div>
+	  <div class="btn-group pull-right" role="group" aria-label="middle group">
+	{% if grants['MASK_CREATE'] %}
+		<button id="{{ name }}_btn_add" type="button" class="btn btn-default" aria-label="Agregar" title="Agregar un registro"><span class="glyphicon glyphicon-plus text-info" aria-hidden="true"></span><span class="responsive-btn-text"> Agregar</span></button>
+	{% endif %}
+	{% if grants['MASK_DELETE'] %}
+		<button id="{{ name }}_btn_delete" type="button" class="btn btn-default" aria-label="Eliminar" title="Eliminar registros seleccionados"><span class="glyphicon glyphicon-trash text-danger" aria-hidden="true"></span><span class="responsive-btn-text"> Eliminar</span></button>
+	{% endif %}
+	  </div>
+	</div>
+	
+	<!-- collapse Filters -->
+	<div class="collapse" id="{{ name }}_collapseFilters">
+	  <div class="well">
+	  
+		<form id="{{ name }}_form_filters" name="{{ name }}_form_filters" class="form-horizontal">
+		<input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+		{% for f in filters %}
+			{% set fname = 'f_' ~ f['filter'] %}
+			{% set fid =  name ~ '_' ~ fname %}
+			{% set fname_c = 'f_c_' ~ f['filter'] %}
+			{% set fid_c =  name ~ '_' ~ fname_c %}
+			{% set input_type =  f['input_type']|default(false) %}
+			{% set fvalue = f['value']|default('') %}
+			
+			{% if f['hidden']|default(false) %}
+			<input id="{{ fid }}" name="{{ fname }}" type="hidden" value="{{ fvalue }}">
+			{% else %}
+			<div class="form-group">
+				<label for="{{ fid }}" class="col-md-3 control-label">{{ f['label'] }}</label>
+				<div class="col-md-9">
+					
+					<!-- Condition input -->
+					{% if f['type'] == 'number' %}
+						{{ c1m.select_condition_number(fid_c, fname_c, f['condition']|default('eq')) }}
+					{% elseif f['type'] == 'text' %}
+						{{ c1m.select_condition_string(fid_c, fname_c, f['condition']|default('is')) }}
+					{% endif %}
+					
+					<!-- Value input -->
+					{% if input_type == 'bool1' %}
+						{{ c1m.select_value_bool1(fid, fname, fvalue) }}
+					{% elseif input_type == 'date_range' %}
+						
+						<div class="input-group">
+						  <div class="input-group-addon">
+							<i class="fa fa-clock-o"></i>
+						  </div>
+						  {{ c1m.filter_input_1(fid, fname, fvalue, f) }}
+						</div>
+							
+					{% else %}
+						{{ c1m.filter_input_1(fid, fname, fvalue, f) }}
+					{% endif %}
+					
+				</div>
+			</div>
+			{% endif %}
+		{% endfor %}
+		<div class="form-group">
+			<div class="col-md-12" style="text-align:center;">
+				  <button id="{{ name }}_btn_search" type="submit" class="btn btn-sm btn-success" aria-label="Buscar"><span class="glyphicon glyphicon-search" aria-hidden="true"></span> Buscar</button>
+				  <button type="reset" class="btn btn-sm btn-default" aria-label="Limpiar"><span class="glyphicon glyphicon-erase text-info" aria-hidden="true"></span> Limpiar</button>
+				  <button id="{{ name }}_btn_adv_search" type="button" class="btn btn-sm btn-default" aria-label="Búsqueda avanzada"><span class="glyphicon glyphicon-wrench text-info" aria-hidden="true"></span> Búsqueda avanzada</button>
+				  <button id="{{ name }}_btn_basic_search" type="button" class="btn btn-sm btn-default" style="display:none;" aria-label="Búsqueda simple"><span class="glyphicon glyphicon-wrench text-info" aria-hidden="true"></span> Búsqueda simple</button>
+			  </div>
+		</div>
+		
+		</form>
+	  </div> <!-- /.well -->
+	</div> <!-- /collapse Filters -->
+	
+	<div id="{{ name }}_container">
+		<table id="{{ name }}" class="table table-bordered table-hover table-condensed ks-dt" style="width:100%;">
+		  <thead></thead>
+		  <tbody></tbody>
+		</table>
+	<div>
+	
+  </div><!-- /.panel-body -->
+</div> <!-- /.panel -->

@@ -1,0 +1,27 @@
+{% extends 'KsAdminLteThemeBundle::index.html.twig' %}
+
+{% block pageheader %}{{ theme.page_header(hdr|default(false)) }}{% endblock %}
+{% block breadcrumb %}{{ theme.breadcrumb(bc|default(false)) }}{% endblock %}
+
+{% block content %}
+<div class="box">
+	<div class="box-body">
+	  <div class="row">
+		<div class="col-md-8">
+			{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+			{{ form_row(form.username) }}
+			{{ form_row(form.email) }}
+			{{ form_row(form.first_name) }}
+			{{ form_row(form.last_name) }}
+			{{ form_row(form.picture) }}
+			{% if ac.localPasswordEnabled() %}
+				{{ form_row(form.password_expired) }}
+			{% endif %}
+			{{ form_row(form.locked) }}
+			{{ form_row(form.save) }}
+			{{ form_end(form) }}
+		</div>
+	  </div> 
+	</div>
+</div>
+{% endblock %}

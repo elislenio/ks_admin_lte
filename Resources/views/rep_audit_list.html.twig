@@ -1,0 +1,81 @@
+{% extends 'KsAdminLteThemeBundle::index.html.twig' %}
+
+{% block inlinecss %}
+	{{ include('KsAdminLteThemeBundle:fragments:crud1_css.html.twig') }}
+	<link href="{{ asset('ks-adminlte-bundle/bower_components/json-human/css/json.human.css') }}" rel="stylesheet">
+<style>
+.jh-key {
+    width: 10px;
+    white-space: nowrap;
+    padding-right: 10px;
+}
+</style>
+{% endblock %}
+
+{% block pageheader %}{{ theme.page_header(hdr|default(false)) }}{% endblock %}
+{% block breadcrumb %}{{ theme.breadcrumb(bc|default(false)) }}{% endblock %}
+
+{% block content %}	
+	<div class="box">
+		<div class="box-body">
+			{{ include('KsAdminLteThemeBundle:fragments:crud1.html.twig', { 'crud': crud }) }}
+		</div>
+	</div>
+{% endblock %}
+
+{% block javascripts %}
+	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud, 'autoload':'false', 'search_expanded': true }) }}
+<script src="{{ asset('ks-adminlte-bundle/bower_components/json-human/src/json.human.js') }}"></script>
+<script>
+
+/* Formatting function for row details */
+// `d` is the original data object for the row
+function format ( d ) {
+	
+	var html = $('<div/>');
+	html.append('<strong>Identificador: </strong>' + d.object_id);
+	
+	var obj = $.parseJSON( d.data );
+	if (obj)
+	{
+		var node = JsonHuman.format(obj);
+		html.append(node);
+	}
+	
+	return html;
+}
+
+crud_{{ crud['name'] }}.showDetails = function(id)
+{
+	var span = $('#{{ crud['name'] }}_btspn_' + id);
+	var row = this.table.row('#'+id);
+	
+	if ( row.child.isShown() ) {
+		// the row is already open - close it
+		row.child.hide();
+		span.removeClass('fa-chevron-up');
+		span.addClass('fa-chevron-down');
+	}
+	else {
+		// Open the row
+		row.child( format(row.data()) ).show();
+		span.removeClass('fa-chevron-down');
+		span.addClass('fa-chevron-up');
+	}
+};
+	
+$(document).ready(function()
+{
+	var options = drp_datetime_defaults;
+	/*
+	var options = $.extend( {}, drp_datetime_defaults, {
+		"startDate": "27/02/2016 00:00",
+		"endDate": "28/02/2016 00:00"
+	});
+	*/
+	$('#rep_audit_f_logged_at').daterangepicker(options);
+	$('#rep_audit_f_logged_at').val("");
+	$('#rep_audit_collapseFilters').toggle();
+});
+</script>
+{% endblock %}

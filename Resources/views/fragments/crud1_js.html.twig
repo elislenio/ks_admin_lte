@@ -1,0 +1,179 @@
+{% set name = crud['name'] %}
+{% set urls = crud['urls'] %}
+{% set grants = crud['grants'] %}
+
+{% if crud['url_param']['create']|default(false) %}
+	{% set param_create = '/' ~ crud['url_param']['create'] %}
+{% endif %}
+
+<script src="{{ asset('ks-adminlte-bundle/dt_defaults.js') }}"></script>
+<script src="{{ asset('ks-adminlte-bundle/drp_defaults.js') }}"></script>
+<script>
+var crud_{{ name }} = {
+	id: '{{ name }}',
+	table: $('#{{ name }}'),
+	autoload: {{autoload|default('true')}},
+	container: $('#{{ name }}_container'),
+	form_filters: $('#{{ name }}_form_filters'),
+	btn_filters: $('#{{ name }}_btn_filters'),
+	btn_reload: $('#{{ name }}_btn_reload'),
+	btn_export: $('#{{ name }}_btn_export'),
+	btn_add: $('#{{ name }}_btn_add'),
+	btn_delete: $('#{{ name }}_btn_delete'),
+	btn_search: $('#{{ name }}_btn_search'),
+	btn_adv_search: $('#{{ name }}_btn_adv_search'),
+	btn_basic_search: $('#{{ name }}_btn_basic_search'),
+	last_post_data: false,
+{% if urls['edit']|default(false) %}
+	editRecord: function(id)
+	{
+		$(location).attr('href', "{{ path(urls['edit'])  }}/" + id);
+	},
+{% endif %}
+{% if urls['delete']|default(false) %}
+	deleteRecord: function(id)
+	{
+		if (! confirm("¿Confirma que desea eliminar el registro?"))
+			return false;
+		
+		var self = this;
+		var v_data = {};
+		v_data.ids = [];
+		v_data.ids.push(id);
+		
+		$.ajax({
+			url: "{{ path(urls['delete']) }}",
+			method: "POST",
+			dataType: 'json',
+			data: v_data
+		}).done(function(data) {
+			if( data.result != 'ok')
+			{
+				show_error(data.result);
+				return;
+			}
+			self.table.ajax.reload();
+		});
+	},
+{% endif %}
+	expandRecord: function(e, data)
+	{
+		e.stopPropagation();
+		alert(data);
+	},
+	init: function()
+	{
+		var self = this;
+		
+		// on ajax call complete
+		this.table.on('xhr.dt', function ( e, settings, json, xhr ) {
+			
+			if (json.server_msg)
+			{
+				if (json.server_msg == 'Ajax request denied')
+					window.location = json.redirectTo;
+				else
+					show_error(json.server_msg);
+			}
+		});
+		
+		{{ include(crud['dt']) }}
+		
+		// Reload
+		this.btn_reload.on('click', function () {
+			self.table.ajax.reload();
+		});
+		
+		// Export
+		this.btn_export.on('click', function () {
+			var params = $.extend( {}, self.last_post_data, {crud_action: 'export'});
+			window.location = "{{ path(urls['export']) }}?" + $.param( params );
+		});
+		
+		{% if urls['create']|default(false) %}
+		// Add record
+		this.btn_add.on('click', function () {
+			$(location).attr('href', "{{ path(urls['create']) ~ param_create|default('') }}");
+		});
+		{% endif %}
+		
+		{% if urls['delete']|default(false) %}
+		// Delete records
+		this.btn_delete.on('click', function () {
+			
+			var rows = self.table.rows( { selected: true } );
+			
+			if (rows.count() == 0) {
+				show_error('No ha seleccionado ningun registro para eliminar');
+				return;
+			}
+			
+			if (! confirm("¿Confirma que desea eliminar los registros seleccionados?"))
+				return false;
+		
+			var v_data = {};
+			v_data.ids = [];
+			
+			$.each(rows.data(), function( key, value ) {
+				v_data.ids.push(value.id);
+			});
+			
+			$.ajax({
+				url: "{{ path(urls['delete']) }}",
+				method: "POST",
+				dataType: 'json',
+				data: v_data
+			}).done(function(data) {
+				if( data.result != 'ok')
+				{
+					show_error(data.result);
+					return;
+				}
+				self.table.ajax.reload();
+			});
+		
+		});
+		{% endif %}
+		
+		// Search form
+		this.btn_search.on('click', function (e) {
+			e.preventDefault();
+			self.table.ajax.reload();
+			
+			if (! self.autoload)
+			{
+				self.container.show();
+				self.btn_filters.prop('disabled', false);
+				self.btn_reload.prop('disabled', false);
+				self.btn_export.prop('disabled', false);
+			}
+		});
+		
+		this.btn_adv_search.on('click', function () {
+			self.btn_adv_search.toggle();
+			self.btn_basic_search.toggle();
+			$('.ks-cond-filter', self.form_filters).css('display', 'inline');
+		});
+		
+		this.btn_basic_search.on('click', function () {
+			self.btn_adv_search.toggle();
+			self.btn_basic_search.toggle();
+			$('.ks-cond-filter', self.form_filters).hide();
+		});
+		
+		if (! this.autoload)
+		{
+			this.container.hide();
+			this.btn_filters.prop('disabled', true);
+			this.btn_reload.prop('disabled', true);
+			this.btn_export.prop('disabled', true);
+		}
+		
+	}
+};
+
+$(document).ready(function() {
+	crud_{{ name }}.init();
+});
+
+</script>

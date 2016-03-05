@@ -1,0 +1,15 @@
+{% extends 'KsAdminLteThemeBundle::index.html.twig' %}
+
+{% block content %}	
+	<section class="content">
+	  <div class="error-page">
+		<h2 class="headline text-red"> {{ status_code }}</h2>
+		<div class="error-content">
+		  <br />
+		  <br />
+		  <h3><i class="fa fa-warning text-red"></i> Se ha producido un error.</h3>
+		  <p>The server returned a "{{ status_code }} {{ status_text }}".</p>
+		</div>
+	  </div>
+	</section>
+{% endblock %}

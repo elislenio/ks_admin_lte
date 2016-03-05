@@ -1,0 +1,27 @@
+{% import 'KsAdminLteThemeBundle:fragments:crud1_macros.html.twig' as c1m %}
+	this.table = this.table.DataTable({
+		{{ c1m.dt_ajax(urls['list']) }},
+		select: false,
+		deferLoading: 0,
+		columns: [
+			{ data: "char_logged_at", title: "Fecha", orderData: 4 },
+			{ data: "id", title: "Log Id" },
+			{ data: "username", title: "Usuario" },
+			{ data: "object_class", title: "Entidad" },
+			{ data: "logged_at", visible: false},
+			{ data: "action", title: "Acción" },
+			{
+                data: "id", 
+				title: "Detalle",
+                className: "details-control all",
+				searchable: false,
+                orderable: false,
+                width: "10px",
+				render: function (data, type, full, meta) {
+					return '<button onclick="crud_{{ name }}.showDetails(\'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="ver detalles" title="ver detalles" data-toggle="button" aria-pressed="false" autocomplete="off"><span id="{{ name }}_btspn_' + data + '" class="fa fa-chevron-down fa-fw text-info" aria-hidden="true"></span></button>';
+				}
+            }
+		],
+		rowId: 'id',
+		order: [[ 0, "desc" ]]
+	});
