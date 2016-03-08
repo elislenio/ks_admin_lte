@@ -153,11 +153,7 @@ class AcController extends BaseController
 			
 			try{
 				
-				$ac->normalizeId();
-				$em = $this->getDoctrine()->getManager();
-				$em->persist($ac);
-				$em->flush();
-				
+				$this->get('ks.core.ac_persist')->insert($ac);
 				return $this->redirectToRoute('acs');
 				
 			} catch (\Exception $e) {
@@ -206,9 +202,7 @@ class AcController extends BaseController
 			
 			try{
 				
-				$em->persist($ac);
-				$em->flush();
-				
+				$this->get('ks.core.ac_persist')->update($ac);
 				return $this->redirectToRoute('acs');
 				
 			} catch (\Exception $e) {
@@ -240,8 +234,7 @@ class AcController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$ac = $em->getRepository('KsCoreBundle:AccessControl')->find($id);
-				$em->remove($ac);
-				$em->flush();
+				$this->get('ks.core.ac_persist')->delete($ac);
 			}
 			
 		} catch (\Exception $e) {

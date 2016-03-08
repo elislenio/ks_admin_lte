@@ -9,7 +9,7 @@ use Ks\CoreBundle\Classes\Ajax;
 
 use Symfony\Component\Form\Extension\Core\Type as FormType;
 
-class AuditController extends BaseController
+class RepAuditController extends BaseController
 {
 	protected function getGrants()
     {

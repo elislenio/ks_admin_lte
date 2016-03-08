@@ -153,11 +153,7 @@ class RolesController extends BaseController
 			
 			try{
 				
-				$role->normalizeName();
-				$em = $this->getDoctrine()->getManager();
-				$em->persist($role);
-				$em->flush();
-				
+				$this->get('ks.core.role')->insert($role);
 				return $this->redirectToRoute('roles');
 				
 			} catch (\Exception $e) {
@@ -207,10 +203,7 @@ class RolesController extends BaseController
 			
 			try{
 				
-				$role->normalizeName();
-				$em->persist($role);
-				$em->flush();
-				
+				$this->get('ks.core.role')->update($role);
 				return $this->redirectToRoute('roles');
 				
 			} catch (\Exception $e) {
@@ -242,8 +235,7 @@ class RolesController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$role = $em->getRepository('KsCoreBundle:Role')->find($id);
-				$em->remove($role);
-				$em->flush();
+				$this->get('ks.core.role')->delete($role);
 			}
 			
 		} catch (\Exception $e) {
@@ -476,14 +468,7 @@ class RolesController extends BaseController
 			
 			try{
 				
-				$ac = $em->getRepository('KsCoreBundle:AccessControl')->find($acl->getAcId());
-				$acl->buildMask();
-				$acl->setRole($role);
-				$acl->setAc($ac);
-				
-				$em->persist($acl);
-				$em->flush();
-				
+				$this->get('ks.core.role')->insertPermission($role, $acl);
 				return $this->redirectToRoute('role_permissions', array('id' => $id));
 				
 			} catch (\Exception $e) {
@@ -537,10 +522,7 @@ class RolesController extends BaseController
 			
 			try{
 				
-				$acl->buildMask();
-				$em->persist($acl);
-				$em->flush();
-				
+				$this->get('ks.core.role')->updatePermission($acl);
 				return $this->redirectToRoute('role_permissions', array('id' => $acl->getRoleId()));
 				
 			} catch (\Exception $e) {
@@ -573,8 +555,7 @@ class RolesController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$acl = $em->getRepository('KsCoreBundle:AccessControlList')->find($id);
-				$em->remove($acl);
-				$em->flush();
+				$this->get('ks.core.role')->deletePermission($acl);
 			}
 			
 		} catch (\Exception $e) {

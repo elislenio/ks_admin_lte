@@ -269,9 +269,8 @@ class UsersController extends BaseController
 		if (! ( $this->get('ks.core.ac')->localPasswordEnabled() && $this->granted('MASK_EDIT') ) )
 			return Ajax::responseDenied();
 		
-		// Get a secure random number, then hash and substr
-		$random = random_bytes(10);
-		$pwd = mb_substr(rtrim(strtr(base64_encode($random), '+/', '-_'), '='),0,8);
+		// Get a random password
+		$pwd = $this->get('ks.core.ac')->genPassword();
 		
 		$response = array();
 		$response['pwd'] = $pwd;
@@ -476,14 +475,14 @@ class UsersController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-		$form = $this->get('ks.core.user_role')->getFormCreate($user);
+		$form = $this->get('ks.core.user')->getFormRoleAssign($user);
 		$form->handleRequest($request);
 		
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.user_role')->insert();
+				$this->get('ks.core.user')->insertRole();
 				return $this->redirectToRoute('user_roles', array('id' => $id));
 				
 			} catch (\Exception $e) {
@@ -515,7 +514,7 @@ class UsersController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$ur = $em->getRepository('KsCoreBundle:UserRole')->find($id);
-				$this->get('ks.core.user_role')->delete($ur);
+				$this->get('ks.core.user')->deleteRole($ur);
 			}
 			
 		} catch (\Exception $e) {

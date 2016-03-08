@@ -159,23 +159,7 @@ class MenuController extends BaseController
 			
 			try{
 				
-				$em = $this->getDoctrine()->getManager();
-				
-				// Creates the menu
-				$em->persist($menu);
-				
-				// Creates the root item
-				$root_item = new MenuItem();
-				$root_item->setMenuId($menu->getId())
-					->setLabel('Root')
-					->setMenu($menu)
-					->setItemOrder(1)
-					->setIsBranch(true)
-					->setVisible(false);
-				
-				$em->persist($root_item);
-				$em->flush();
-				
+				$this->get('ks.core.menu')->insert($menu);
 				return $this->redirectToRoute('menus');
 				
 			} catch (\Exception $e) {
@@ -224,9 +208,7 @@ class MenuController extends BaseController
 			
 			try{
 				
-				$em->persist($menu);
-				$em->flush();
-				
+				$this->get('ks.core.menu')->update($menu);
 				return $this->redirectToRoute('menus');
 				
 			} catch (\Exception $e) {
@@ -258,8 +240,7 @@ class MenuController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$menu = $em->getRepository('KsCoreBundle:Menu')->find($id);
-				$em->remove($menu);
-				$em->flush();
+				$this->get('ks.core.menu')->delete($menu);
 			}
 			
 		} catch (\Exception $e) {
@@ -459,20 +440,7 @@ class MenuController extends BaseController
 			
 			try{
 				
-				$menu_item->setMenu($menu);
-				
-				$parent = $em->getRepository('KsCoreBundle:MenuItem')->find($menu_item->getParentId());
-				$menu_item->setParent($parent);
-				
-				if ($menu_item->getAcId())
-				{
-					$ac = $em->getRepository('KsCoreBundle:AccessControl')->find($menu_item->getAcId());
-					$menu_item->setAc($ac);
-				}
-				
-				$em->persist($menu_item);
-				$em->flush();
-				
+				$this->get('ks.core.menu')->insertItem($menu, $menu_item);
 				return $this->redirectToRoute('menu_items', array('id' => $id));
 				
 			} catch (\Exception $e) {
@@ -533,12 +501,7 @@ class MenuController extends BaseController
 			
 			try{
 				
-				if (!$menu_item->getAcId())	$menu_item->setAcId(null);
-				if (!$menu_item->getMask())	$menu_item->setMask(null);
-				
-				$em->persist($menu_item);
-				$em->flush();
-				
+				$this->get('ks.core.menu')->updateItem($menu_item);
 				return $this->redirectToRoute('menu_items', array('id' => $menu_id));
 				
 			} catch (\Exception $e) {
@@ -570,8 +533,7 @@ class MenuController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$menu_item = $em->getRepository('KsCoreBundle:MenuItem')->find($id);
-				$em->remove($menu_item);
-				$em->flush();
+				$this->get('ks.core.menu')->deleteItem($menu_item);
 			}
 			
 		} catch (\Exception $e) {
