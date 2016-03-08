@@ -9,9 +9,9 @@
 	  <div class="row">
 		<div class="col-md-8">
 			{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-			{{ form_row(form.id) }}
-			{{ form_row(form.name) }}
-			{{ form_row(form.save) }}
+			{{ form_row(form.id, {'label': 'Id'}) }}
+			{{ form_row(form.name, {'label': 'Descripción'}) }}
+			{{ form_row(form.save, {'label': 'Guardar'}) }}
 			{{ form_end(form) }}
 		</div>
 	  </div> 

@@ -13,11 +13,11 @@
 				<label class="control-label">Función:</label>
 				<p class="form-control-static">{{ acl.getAc().getDescription() }}</p>
 			</div>
-			{{ form_row(form.mask_view) }}
-			{{ form_row(form.mask_create) }}
-			{{ form_row(form.mask_edit) }}
-			{{ form_row(form.mask_delete) }}
-			{{ form_row(form.save) }}
+			{{ form_row(form.mask_view, {'label': 'Lectura'}) }}
+			{{ form_row(form.mask_create, {'label': 'Alta'}) }}
+			{{ form_row(form.mask_edit, {'label': 'Modificación'}) }}
+			{{ form_row(form.mask_delete, {'label': 'Baja'}) }}
+			{{ form_row(form.save, {'label': 'Guardar'}) }}
 			{{ form_end(form) }}
 		</div>
 	  </div> 

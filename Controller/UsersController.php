@@ -31,7 +31,7 @@ class UsersController extends BaseController
 			'pwdreset'	=> 'users_pwd_reset'
 		);
 		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_users.html.twig';
-		$conf['csv_filename'] = 'users_' . date('mdHis') . '.csv';
+		$conf['csv_filename'] = 'usuarios_' . date('mdHis') . '.csv';
 		$conf['csv_columns'] = array();
 		$conf['csv_columns']['id'] = array('field' => 'id', 'title' => 'Id');
 		$conf['csv_columns']['username'] = array('field' => 'username', 'title' => 'Usuario');
@@ -157,14 +157,14 @@ class UsersController extends BaseController
 		if (! $this->granted('MASK_CREATE')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-		$form = $this->get('ks.core.user')->getFormCreate();
+		$form = $this->get('ks.core.user_model')->getFormCreate();
 		$form->handleRequest($request);
 		
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.user')->insert();
+				$this->get('ks.core.user_model')->insert();
 				return $this->redirectToRoute('users');
 				
 			} catch (\Exception $e) {
@@ -203,14 +203,14 @@ class UsersController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-		$form = $this->get('ks.core.user')->getFormEdit($user);
+		$form = $this->get('ks.core.user_model')->getFormEdit($user);
 		$form->handleRequest($request);
 		
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.user')->update();
+				$this->get('ks.core.user_model')->update();
 				return $this->redirectToRoute('users');
 				
 			} catch (\Exception $e) {
@@ -242,7 +242,7 @@ class UsersController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$user = $em->getRepository('KsCoreBundle:User')->find($id);
-				$this->get('ks.core.user')->delete($user);
+				$this->get('ks.core.user_model')->delete($user);
 			}
 			
 		} catch (\Exception $e) {
@@ -300,14 +300,14 @@ class UsersController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-		$form = $this->get('ks.core.user')->getFormPwdReset($user);
+		$form = $this->get('ks.core.user_model')->getFormPwdReset($user);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.user')->resetPwd();
+				$this->get('ks.core.user_model')->resetPwd();
 				return $this->redirectToRoute('users');
 				
 			} catch (\Exception $e) {
@@ -341,7 +341,7 @@ class UsersController extends BaseController
 			'export'	=> 'user_roles_export'
 		);
 		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_user_roles.html.twig';
-		$conf['csv_filename'] = 'user_roles_' . date('mdHis') . '.csv';
+		$conf['csv_filename'] = 'usuario_roles_' . date('mdHis') . '.csv';
 		$conf['csv_columns'] = array();
 		$conf['csv_columns']['id'] = array('field' => 'id', 'title' => 'Id');
 		$conf['csv_columns']['user'] = array('field' => 'user', 'title' => 'Usuario');
@@ -475,14 +475,14 @@ class UsersController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-		$form = $this->get('ks.core.user')->getFormRoleAssign($user);
+		$form = $this->get('ks.core.user_model')->getFormRoleAssign($user);
 		$form->handleRequest($request);
 		
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.user')->insertRole();
+				$this->get('ks.core.user_model')->insertRole();
 				return $this->redirectToRoute('user_roles', array('id' => $id));
 				
 			} catch (\Exception $e) {
@@ -514,7 +514,7 @@ class UsersController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$ur = $em->getRepository('KsCoreBundle:UserRole')->find($id);
-				$this->get('ks.core.user')->deleteRole($ur);
+				$this->get('ks.core.user_model')->deleteRole($ur);
 			}
 			
 		} catch (\Exception $e) {

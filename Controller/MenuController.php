@@ -4,8 +4,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
-use Symfony\Component\Form\Extension\Core\Type as FormType;
-use Symfony\Component\Security\Acl\Permission\MaskBuilder;
 use Knp\Menu\Matcher\Matcher;
 use Knp\Menu\Matcher\Voter\RegexVoter;
 use Knp\Menu\Matcher\Voter\UriVoter;
@@ -146,20 +144,14 @@ class MenuController extends BaseController
 		
 		// Form
 		$menu = new Menu();
-		
-        $form = $this->createFormBuilder($menu, array('validation_groups' => array('create')))
-			->add('id', FormType\TextType::class, array('label' => 'Id'))
-            ->add('name', FormType\TextType::class, array('label' => 'Descripción'))
-			->add('save', FormType\SubmitType::class, array('label' => 'Guardar'))
-            ->getForm();
-		
+		$form = $this->get('ks.core.menu_model')->getFormCreate($menu);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.menu')->insert($menu);
+				$this->get('ks.core.menu_model')->insert($menu);
 				return $this->redirectToRoute('menus');
 				
 			} catch (\Exception $e) {
@@ -197,18 +189,14 @@ class MenuController extends BaseController
 		if (! $this->granted('MASK_EDIT')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-		$form = $this->createFormBuilder($menu, array('validation_groups' => array('update')))
-            ->add('name', FormType\TextType::class, array('label' => 'Descripción'))
-			->add('save', FormType\SubmitType::class, array('label' => 'Guardar'))
-            ->getForm();
-		
+		$form = $this->get('ks.core.menu_model')->getFormEdit($menu);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.menu')->update($menu);
+				$this->get('ks.core.menu_model')->update($menu);
 				return $this->redirectToRoute('menus');
 				
 			} catch (\Exception $e) {
@@ -240,7 +228,7 @@ class MenuController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$menu = $em->getRepository('KsCoreBundle:Menu')->find($id);
-				$this->get('ks.core.menu')->delete($menu);
+				$this->get('ks.core.menu_model')->delete($menu);
 			}
 			
 		} catch (\Exception $e) {
@@ -339,58 +327,6 @@ class MenuController extends BaseController
         ));
     }
 	
-	private function getBranchList($id)
-	{
-		$conn = $this->get('database_connection');
-		$qb = $conn->createQueryBuilder();
-		
-		$qb->select('a.id, a.label')
-			->from('ks_menu_item', 'a')
-			->andWhere('a.menu_id = ?')
-			->andWhere('a.is_branch = 1')
-			->setParameter(0, $id);
-		
-		$records = $qb->execute()->fetchAll();
-		
-		$options = array();
-		$options['Seleccione un valor'] = '';
-		
-		foreach ($records as $r)
-			$options[$r['label']] = $r['id'];
-			
-		return $options;
-	}
-	
-	private function getFunctionList()
-	{
-		$conn = $this->get('database_connection');
-		$qb = $conn->createQueryBuilder();
-		$qb->select('a.id, a.description')
-			->from('ks_ac', 'a');
-		
-		$records = $qb->execute()->fetchAll();
-		
-		$options = array();
-		$options['Seleccione un valor'] = '';
-		
-		foreach ($records as $r)
-			$options[$r['description']] = $r['id'];
-			
-		return $options;
-	}
-	
-	private function getMaskList()
-	{
-		$options = array();
-		$options['Seleccione un valor'] = '';
-		$options['Lectura'] = MaskBuilder::MASK_VIEW;
-		$options['Alta'] = MaskBuilder::MASK_CREATE;
-		$options['Modificación'] = MaskBuilder::MASK_EDIT;
-		$options['Baja'] = MaskBuilder::MASK_DELETE;
-			
-		return $options;
-	}
-	
 	/**
      * @Route("/menus/items/create/{id}", name="menu_items_create", defaults={"id" = 0})
      */
@@ -420,27 +356,14 @@ class MenuController extends BaseController
 		$menu_item->setIsBranch(false);
 		$menu_item->setVisible(true);
 		
-        $form = $this->createFormBuilder($menu_item, array('validation_groups' => array('create')))
-            ->add('menu_id', FormType\HiddenType::class)
-			->add('parent_id', FormType\ChoiceType::class, array('label' => 'Hubicación', 'choices' => $this->getBranchList($id), 'choices_as_values' => true))
-			->add('label', FormType\TextType::class, array('label' => 'Texto'))
-			->add('route', FormType\TextType::class, array('label' => 'Ruta'))
-			->add('item_order', FormType\NumberType::class, array('label' => 'Orden'))
-			->add('icon', FormType\TextType::class, array('label' => 'Icono'))
-			->add('is_branch', FormType\CheckboxType::class, array('label' => 'Submenú'))
-			->add('visible', FormType\CheckboxType::class, array('label' => 'Visible'))
-			->add('ac_id', FormType\ChoiceType::class, array('label' => 'Función', 'choices' => $this->getFunctionList(), 'choices_as_values' => true))
-			->add('mask', FormType\ChoiceType::class, array('label' => 'Permiso', 'choices' => $this->getMaskList(), 'choices_as_values' => true))
-			->add('save', FormType\SubmitType::class, array('label' => 'Guardar'))
-            ->getForm();
-		
+		$form = $this->get('ks.core.menu_model')->getFormItemCreate($menu_item);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.menu')->insertItem($menu, $menu_item);
+				$this->get('ks.core.menu_model')->insertItem($menu, $menu_item);
 				return $this->redirectToRoute('menu_items', array('id' => $id));
 				
 			} catch (\Exception $e) {
@@ -482,26 +405,14 @@ class MenuController extends BaseController
 		if (! $this->granted('MASK_EDIT')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-		$form = $this->createFormBuilder($menu_item, array('validation_groups' => array('update')))
-			->add('parent_id', FormType\ChoiceType::class, array('label' => 'Hubicación', 'choices' => $this->getBranchList($menu_id), 'choices_as_values' => true))
-			->add('label', FormType\TextType::class, array('label' => 'Texto'))
-			->add('route', FormType\TextType::class, array('label' => 'Ruta'))
-			->add('item_order', FormType\NumberType::class, array('label' => 'Orden'))
-			->add('icon', FormType\TextType::class, array('label' => 'Icono'))
-			->add('is_branch', FormType\CheckboxType::class, array('label' => 'Submenú'))
-			->add('visible', FormType\CheckboxType::class, array('label' => 'Visible'))
-			->add('ac_id', FormType\ChoiceType::class, array('label' => 'Función', 'choices' => $this->getFunctionList(), 'choices_as_values' => true))
-			->add('mask', FormType\ChoiceType::class, array('label' => 'Permiso', 'choices' => $this->getMaskList(), 'choices_as_values' => true))
-			->add('save', FormType\SubmitType::class, array('label' => 'Guardar'))
-            ->getForm();
-		
+		$form = $this->get('ks.core.menu_model')->getFormItemEdit($menu_item);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.menu')->updateItem($menu_item);
+				$this->get('ks.core.menu_model')->updateItem($menu_item);
 				return $this->redirectToRoute('menu_items', array('id' => $menu_id));
 				
 			} catch (\Exception $e) {
@@ -533,7 +444,7 @@ class MenuController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$menu_item = $em->getRepository('KsCoreBundle:MenuItem')->find($id);
-				$this->get('ks.core.menu')->deleteItem($menu_item);
+				$this->get('ks.core.menu_model')->deleteItem($menu_item);
 			}
 			
 		} catch (\Exception $e) {

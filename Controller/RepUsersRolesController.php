@@ -28,7 +28,7 @@ class RepUsersRolesController extends BaseController
 			'export'	=> 'rep_users_roles_export'
 		);
 		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_rep_users_roles.html.twig';
-		$conf['csv_filename'] = 'rep_users_roles_' . date('mdHis') . '.csv';
+		$conf['csv_filename'] = 'rep_usuarios_roles_' . date('mdHis') . '.csv';
 		$conf['csv_columns'] = array();
 		$conf['csv_columns']['user'] = array('field' => 'user', 'title' => 'Usuario');
 		$conf['csv_columns']['role'] = array('field' => 'role', 'title' => 'Rol');

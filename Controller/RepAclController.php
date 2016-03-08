@@ -75,7 +75,7 @@ class RepAclController extends BaseController
 		// Config
 		$crud = $this->getCrudConf();
 		
-		return $this->render('KsAdminLteThemeBundle::acl_list.html.twig', array(
+		return $this->render('KsAdminLteThemeBundle::rep_acl_list.html.twig', array(
             'hdr' 	=> $hdr,
 			'bc' 	=> $bc,
 			'crud' 	=> $crud

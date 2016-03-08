@@ -143,7 +143,6 @@ var crud_{{ name }} = {
 			if (! self.autoload)
 			{
 				self.container.show();
-				self.btn_filters.prop('disabled', false);
 				self.btn_reload.prop('disabled', false);
 				self.btn_export.prop('disabled', false);
 			}
@@ -164,7 +163,6 @@ var crud_{{ name }} = {
 		if (! this.autoload)
 		{
 			this.container.hide();
-			this.btn_filters.prop('disabled', true);
 			this.btn_reload.prop('disabled', true);
 			this.btn_export.prop('disabled', true);
 		}

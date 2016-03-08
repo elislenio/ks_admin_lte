@@ -11,16 +11,16 @@
 			{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 			<div class="row">
 				<div class="col-md-10">
-					{{ form_row(form.generated_password) }}
+					{{ form_row(form.generated_password, {'label': 'Nueva contraseña', 'attr': {'readonly': 'readonly'} }) }}
 				</div>
 				<div class="col-md-2">
 					<div class="form-group">
 						<label class="control-label" for="form_gen_pwd" style="display:block;">&nbsp;</label>
-						{{ form_widget(form.gen_pwd) }}
+						{{ form_widget(form.gen_pwd, {'label': 'Generar', 'attr': {'onclick': 'genPwd()'} }) }}
 					</div>
 				</div>
 			</div>
-			{{ form_row(form.save) }}
+			{{ form_row(form.save, {'label': 'Guardar'}) }}
 			{{ form_end(form) }}
 		</div>
 	  </div> 

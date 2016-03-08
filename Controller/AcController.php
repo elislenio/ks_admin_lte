@@ -3,7 +3,6 @@ namespace Ks\AdminLteThemeBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\Extension\Core\Type as FormType;
 use Ks\CoreBundle\Controller\BaseController;
 use Ks\CoreBundle\Entity\AccessControl;
 use Ks\CoreBundle\Classes\DbAbs;
@@ -140,20 +139,14 @@ class AcController extends BaseController
 		
 		// Form
 		$ac = new AccessControl();
-		
-        $form = $this->createFormBuilder($ac, array('validation_groups' => array('create')))
-            ->add('id')
-			->add('description', FormType\TextType::class, array('label' => 'Descripción'))
-			->add('save', FormType\SubmitType::class, array('label' => 'Guardar'))
-            ->getForm();
-		
+		$form = $this->get('ks.core.ac_model')->getFormCreate($ac);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.ac_persist')->insert($ac);
+				$this->get('ks.core.ac_model')->insert($ac);
 				return $this->redirectToRoute('acs');
 				
 			} catch (\Exception $e) {
@@ -191,18 +184,14 @@ class AcController extends BaseController
 		if (! $this->granted('MASK_EDIT')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-		$form = $this->createFormBuilder($ac, array('validation_groups' => array('update')))
-            ->add('description', FormType\TextType::class, array('label' => 'Descripción'))
-			->add('save', FormType\SubmitType::class, array('label' => 'Guardar'))
-            ->getForm();
-		
+		$form = $this->get('ks.core.ac_model')->getFormEdit($ac);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.ac_persist')->update($ac);
+				$this->get('ks.core.ac_model')->update($ac);
 				return $this->redirectToRoute('acs');
 				
 			} catch (\Exception $e) {
@@ -234,7 +223,7 @@ class AcController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$ac = $em->getRepository('KsCoreBundle:AccessControl')->find($id);
-				$this->get('ks.core.ac_persist')->delete($ac);
+				$this->get('ks.core.ac_model')->delete($ac);
 			}
 			
 		} catch (\Exception $e) {

@@ -12,7 +12,7 @@
 			{ data: "created", visible: false},
 			{ data: "updated", visible: false}
 		{% if grants['MASK_VIEW']|default(false) %}
-			,{{ c1m.dt_action_col('id', '', name, 'editPermissions', 'Permisos', 'fa fa-key fa-fw text-info') }}
+			,{{ c1m.dt_action_col('id', '', name, 'editAcl', 'Permisos', 'fa fa-key fa-fw text-info') }}
 		{% endif %}
 		{% if grants['MASK_EDIT']|default(false) %}
 			,{{ c1m.dt_action_edit('id', name) }}

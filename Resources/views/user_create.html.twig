@@ -8,26 +8,26 @@
 	<div class="box-body">
 	  <div class="row">
 		<div class="col-md-8">
-			{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
-			{{ form_row(form.username) }}
+			{{ form_start(form, { 'attr': {'novalidate': 'novalidate'} }) }}
+			{{ form_row(form.username, {'label': 'Nombre de usuario'}) }}
 			{{ form_row(form.email) }}
-			{{ form_row(form.first_name) }}
-			{{ form_row(form.last_name) }}
-			{{ form_row(form.picture) }}
+			{{ form_row(form.first_name, {'label': 'Nombre'}) }}
+			{{ form_row(form.last_name, {'label': 'Apellido'}) }}
+			{{ form_row(form.picture, {'label': 'Imagen'}) }}
 			{% if ac.localPasswordEnabled() %}
 			<div class="row">
 				<div class="col-md-10">
-					{{ form_row(form.generated_password) }}
+					{{ form_row(form.generated_password, {'label': 'Contraseña', 'attr': {'readonly': 'readonly'} }) }}
 				</div>
 				<div class="col-md-2">
 					<div class="form-group">
 						<label class="control-label" for="form_gen_pwd" style="display:block;">&nbsp;</label>
-						{{ form_widget(form.gen_pwd) }}
+						{{ form_widget(form.gen_pwd, {'label': 'Generar', 'attr': {'onclick': 'genPwd()'} }) }}
 					</div>
 				</div>
 			</div>
 			{% endif %}
-			{{ form_row(form.save) }}
+			{{ form_row(form.save, {'label': 'Guardar'}) }}
 			{{ form_end(form) }}
 		</div>
 	  </div> 

@@ -18,9 +18,9 @@
 {% block javascripts %}
 	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud }) }}
 <script>
-crud_{{ crud['name'] }}.editPermissions = function(id)
+crud_{{ crud['name'] }}.editAcl = function(id)
 {
-	$(location).attr('href', "{{ path(crud['urls']['permissions'])  }}/" + id);
+	$(location).attr('href', "{{ path(crud['urls']['acl'])  }}/" + id);
 };
 </script>
 {% endblock %}

@@ -4,7 +4,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Acl\Permission\MaskBuilder;
-use Symfony\Component\Form\Extension\Core\Type as FormType;
 use Ks\CoreBundle\Controller\BaseController;
 use Ks\CoreBundle\Entity\Role;
 use Ks\CoreBundle\Entity\AccessControlList;
@@ -24,12 +23,12 @@ class RolesController extends BaseController
 		$conf['name'] = 'roles';
 		$conf['grants'] = $this->grants;
 		$conf['urls'] = array(
-			'list'			=> 'roles_list',
-			'create'		=> 'roles_create',
-			'edit'			=> 'roles_edit',
-			'delete'		=> 'roles_delete',
-			'export'		=> 'roles_export',
-			'permissions'	=> 'role_permissions'
+			'list'		=> 'roles_list',
+			'create'	=> 'roles_create',
+			'edit'		=> 'roles_edit',
+			'delete'	=> 'roles_delete',
+			'export'	=> 'roles_export',
+			'acl'		=> 'role_acl'
 		);
 		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_roles.html.twig';
 		$conf['csv_filename'] = 'roles_' . date('mdHis') . '.csv';
@@ -139,21 +138,16 @@ class RolesController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_CREATE')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
+		// Form
 		$role = new Role();
-		
-        $form = $this->createFormBuilder($role, array('validation_groups' => array('create')))
-            ->add('id')
-			->add('description', FormType\TextType::class, array('label' => 'Descripción'))
-			->add('save', FormType\SubmitType::class, array('label' => 'Guardar'))
-            ->getForm();
-		
+		$form = $this->get('ks.core.role_model')->getFormCreate($role);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.role')->insert($role);
+				$this->get('ks.core.role_model')->insert($role);
 				return $this->redirectToRoute('roles');
 				
 			} catch (\Exception $e) {
@@ -192,18 +186,14 @@ class RolesController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-        $form = $this->createFormBuilder($role, array('validation_groups' => array('update')))
-            ->add('description', FormType\TextType::class, array('label' => 'Descripción'))
-			->add('save', FormType\SubmitType::class, array('label' => 'Guardar'))
-            ->getForm();
-		
+		$form = $this->get('ks.core.role_model')->getFormEdit($role);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.role')->update($role);
+				$this->get('ks.core.role_model')->update($role);
 				return $this->redirectToRoute('roles');
 				
 			} catch (\Exception $e) {
@@ -235,7 +225,7 @@ class RolesController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$role = $em->getRepository('KsCoreBundle:Role')->find($id);
-				$this->get('ks.core.role')->delete($role);
+				$this->get('ks.core.role_model')->delete($role);
 			}
 			
 		} catch (\Exception $e) {
@@ -248,7 +238,7 @@ class RolesController extends BaseController
 	
 	
 	/************************************************
-     * 					PERMISSIONS
+     * 					ACL
      ************************************************
 	 */
 	 
@@ -258,14 +248,14 @@ class RolesController extends BaseController
 		$conf['name'] = 'roles_p';
 		$conf['grants'] = $this->grants;
 		$conf['urls'] = array(
-			'list'		=> 'role_p_list',
-			'create'	=> 'role_p_create',
-			'edit'		=> 'role_p_edit',
-			'delete'	=> 'role_p_delete',
-			'export'	=> 'role_p_export'
+			'list'		=> 'role_acl_list',
+			'create'	=> 'role_acl_create',
+			'edit'		=> 'role_acl_edit',
+			'delete'	=> 'role_acl_delete',
+			'export'	=> 'role_acl_export'
 		);
-		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_role_p.html.twig';
-		$conf['csv_filename'] = 'role_permissions_' . date('mdHis') . '.csv';
+		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_role_acl.html.twig';
+		$conf['csv_filename'] = 'rol_permisos_' . date('mdHis') . '.csv';
 		$conf['csv_columns'] = array();
 		$conf['csv_columns']['id'] = array('field' => 'id', 'title' => 'Id');
 		$conf['csv_columns']['role'] = array('field' => 'role', 'title' => 'Rol');
@@ -329,9 +319,9 @@ class RolesController extends BaseController
 	}
 	
 	/**
-     * @Route("/roles/permissions/view/{id}", name="role_permissions", defaults={"id" = 0})
+     * @Route("/roles/acl/view/{id}", name="role_acl", defaults={"id" = 0})
      */
-    public function permissionsAction(Request $request, $id)
+    public function aclAction(Request $request, $id)
     {
 		// Role
 		$em = $this->getDoctrine()->getManager();
@@ -357,7 +347,7 @@ class RolesController extends BaseController
 		$crud['url_param'] = array();
 		$crud['url_param']['create'] = $id;
 		
-		return $this->render('KsAdminLteThemeBundle::role_permissions_list.html.twig', array(
+		return $this->render('KsAdminLteThemeBundle::role_acl_list.html.twig', array(
             'hdr' 	=> $hdr,
 			'bc' 	=> $bc,
 			'crud' 	=> $crud
@@ -365,9 +355,9 @@ class RolesController extends BaseController
     }
 	
 	/**
-     * @Route("/roles/permissions/list/{id}", name="role_p_list", defaults={"id" = 0})
+     * @Route("/roles/acl/list/{id}", name="role_acl_list", defaults={"id" = 0})
      */
-    public function permListAction(Request $request)
+    public function aclListAction(Request $request)
     {
 		$dt_report = $this->get('ks.core.dt_report');
 		
@@ -380,9 +370,9 @@ class RolesController extends BaseController
     }
 	
 	/**
-     * @Route("/roles/permissions/export", name="role_p_export")
+     * @Route("/roles/acl/export", name="role_acl_export")
      */
-    public function permExportAction(Request $request)
+    public function aclExportAction(Request $request)
     {
 		// Access Control
 		$this->getGrants();
@@ -400,34 +390,10 @@ class RolesController extends BaseController
 		);
     }
 	
-	private function getAvailableControlList($id)
-	{
-		$conn = $this->get('database_connection');
-		$qb = $conn->createQueryBuilder();
-		$qb->select('a.id, a.description');
-		$qb->from('ks_ac', 'a');
-		$qb->andWhere('a.id not in (
-			select b.ac_id
-			from ks_acl b
-			where b.role_id = ?
-		)');
-		$qb->setParameter(0, $id);
-		
-		$records = $qb->execute()->fetchAll();
-		
-		$options = array();
-		$options['Seleccione un valor'] = '';
-		
-		foreach ($records as $r)
-			$options[$r['description']] = $r['id'];
-			
-		return $options;
-	}
-	
 	/**
-     * @Route("/roles/permissions/create/{id}", name="role_p_create", defaults={"id" = 0})
+     * @Route("/roles/acl/create/{id}", name="role_acl_create", defaults={"id" = 0})
      */
-    public function permCreateAction(Request $request, $id)
+    public function aclCreateAction(Request $request, $id)
     {
 		//Role
 		$em = $this->getDoctrine()->getManager();
@@ -439,7 +405,7 @@ class RolesController extends BaseController
 		// Breadcrumb
 		$bc = array();
 		$bc[] = array('route' => $this->get('router')->generate('roles'), 'description'=>'Roles');
-		$bc[] = array('route' => $this->get('router')->generate('role_permissions', array('id' => $id)), 'description' => 'Permisos para '.$role->getDescription());
+		$bc[] = array('route' => $this->get('router')->generate('role_acl', array('id' => $id)), 'description' => 'Permisos para '.$role->getDescription());
 		$bc[] = array('description'=>'Agregar permiso');
 		
 		// Access Control
@@ -451,25 +417,15 @@ class RolesController extends BaseController
 		$acl = new AccessControlList();
 		$acl->setRoleId($id);
 		$acl->setMaskView(true);
-		
-        $form = $this->createFormBuilder($acl, array('validation_groups' => array('create')))
-            ->add('role_id', FormType\HiddenType::class)
-			->add('ac_id', FormType\ChoiceType::class, array('label' => 'Función', 'choices' => $this->getAvailableControlList($id), 'choices_as_values' => true))
-			->add('mask_view', FormType\CheckboxType::class, array('label' => 'Lectura'))
-			->add('mask_create', FormType\CheckboxType::class, array('label' => 'Alta'))
-			->add('mask_edit', FormType\CheckboxType::class, array('label' => 'Modificación'))
-			->add('mask_delete', FormType\CheckboxType::class, array('label' => 'Baja'))
-			->add('save', FormType\SubmitType::class, array('label' => 'Guardar'))
-            ->getForm();
-		
+		$form = $this->get('ks.core.role_model')->getFormAclCreate($acl);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.role')->insertPermission($role, $acl);
-				return $this->redirectToRoute('role_permissions', array('id' => $id));
+				$this->get('ks.core.role_model')->insertAcl($role, $acl);
+				return $this->redirectToRoute('role_acl', array('id' => $id));
 				
 			} catch (\Exception $e) {
 				$message = $this->handleException($e);
@@ -477,7 +433,7 @@ class RolesController extends BaseController
 			}
 		}
 		
-		return $this->render('KsAdminLteThemeBundle::role_permissions_create.html.twig', array(
+		return $this->render('KsAdminLteThemeBundle::role_acl_create.html.twig', array(
             'hdr' 	=> $hdr,
 			'bc' 	=> $bc, 
 			'form' => $form->createView()
@@ -485,9 +441,9 @@ class RolesController extends BaseController
 	}
 	
 	/**
-     * @Route("/roles/permissions/edit/{id}", name="role_p_edit", defaults={"id" = 0})
+     * @Route("/roles/acl/edit/{id}", name="role_acl_edit", defaults={"id" = 0})
      */
-    public function permEditAction(Request $request, $id)
+    public function aclEditAction(Request $request, $id)
     {
 		// Acl
 		$em = $this->getDoctrine()->getManager();
@@ -500,7 +456,7 @@ class RolesController extends BaseController
 		// Breadcrumb
 		$bc = array();
 		$bc[] = array('route' => $this->get('router')->generate('roles'), 'description'=>'Roles');
-		$bc[] = array('route' => $this->get('router')->generate('role_permissions', array('id' => $acl->getRoleId())), 'description' => 'Permisos para '.$acl->getRole()->getDescription());
+		$bc[] = array('route' => $this->get('router')->generate('role_acl', array('id' => $acl->getRoleId())), 'description' => 'Permisos para '.$acl->getRole()->getDescription());
 		$bc[] = array('description'=>'Editar permisos');
 		
 		// Access Control
@@ -508,22 +464,15 @@ class RolesController extends BaseController
 		if (! $this->granted('MASK_EDIT')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-		$form = $this->createFormBuilder($acl, array('validation_groups' => array('update')))
-			->add('mask_view', FormType\CheckboxType::class, array('label' => 'Lectura'))
-			->add('mask_create', FormType\CheckboxType::class, array('label' => 'Alta'))
-			->add('mask_edit', FormType\CheckboxType::class, array('label' => 'Modificación'))
-			->add('mask_delete', FormType\CheckboxType::class, array('label' => 'Baja'))
-			->add('save', FormType\SubmitType::class, array('label' => 'Guardar'))
-            ->getForm();
-		
+		$form = $this->get('ks.core.role_model')->getFormAclEdit($acl);
 		$form->handleRequest($request);
 
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.role')->updatePermission($acl);
-				return $this->redirectToRoute('role_permissions', array('id' => $acl->getRoleId()));
+				$this->get('ks.core.role_model')->updateAcl($acl);
+				return $this->redirectToRoute('role_acl', array('id' => $acl->getRoleId()));
 				
 			} catch (\Exception $e) {
 				$message = $this->handleException($e);
@@ -531,7 +480,7 @@ class RolesController extends BaseController
 			}
 		}
 		
-		return $this->render('KsAdminLteThemeBundle::role_permissions_edit.html.twig', array(
+		return $this->render('KsAdminLteThemeBundle::role_acl_edit.html.twig', array(
             'hdr' 	=> $hdr,
 			'bc' 	=> $bc, 
 			'form' 	=> $form->createView(),
@@ -540,9 +489,9 @@ class RolesController extends BaseController
 	}
 	
 	/**
-     * @Route("/roles/permissions/delete", name="role_p_delete")
+     * @Route("/roles/acl/delete", name="role_acl_delete")
      */
-    public function permDeleteAction(Request $request)
+    public function aclDeleteAction(Request $request)
     {
 		// Access Control
 		$this->getGrants();
@@ -555,7 +504,7 @@ class RolesController extends BaseController
 			foreach ($request->request->get('ids') as $id)
 			{
 				$acl = $em->getRepository('KsCoreBundle:AccessControlList')->find($id);
-				$this->get('ks.core.role')->deletePermission($acl);
+				$this->get('ks.core.role_model')->deleteAcl($acl);
 			}
 			
 		} catch (\Exception $e) {

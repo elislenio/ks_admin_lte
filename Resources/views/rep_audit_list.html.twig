@@ -24,7 +24,7 @@
 {% endblock %}
 
 {% block javascripts %}
-	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud, 'autoload':'false', 'search_expanded': true }) }}
+	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud, 'autoload':'false' }) }}
 <script src="{{ asset('ks-adminlte-bundle/bower_components/json-human/src/json.human.js') }}"></script>
 <script>
 
@@ -75,7 +75,7 @@ $(document).ready(function()
 	*/
 	$('#rep_audit_f_logged_at').daterangepicker(options);
 	$('#rep_audit_f_logged_at').val("");
-	$('#rep_audit_collapseFilters').toggle();
+	$('#rep_audit_btn_filters').trigger( "click" );
 });
 </script>
 {% endblock %}

@@ -10,8 +10,8 @@
 		<div class="col-md-8">
 			{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
 			{{ form_row(form.user_id) }}
-			{{ form_row(form.role_id) }} 
-			{{ form_row(form.save) }}
+			{{ form_row(form.role_id, {'label': 'Rol'}) }}
+			{{ form_row(form.save, {'label': 'Guardar'}) }}
 			{{ form_end(form) }}
 		</div>
 	  </div> 
