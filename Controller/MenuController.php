@@ -6,7 +6,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\Form\Extension\Core\Type as FormType;
 use Symfony\Component\Security\Acl\Permission\MaskBuilder;
-use Doctrine\DBAL\Types\Type;
 use Knp\Menu\Matcher\Matcher;
 use Knp\Menu\Matcher\Voter\RegexVoter;
 use Knp\Menu\Matcher\Voter\UriVoter;
@@ -24,10 +23,8 @@ class MenuController extends BaseController
 		parent::getAcGrants('MENUS');
     }
 	
-	private function getCrud1Conf()
+	private function getCrudConf()
 	{
-		$engine = $this->getDbEngine();
-		
 		$conf = array();
 		$conf['name'] = 'menus';
 		$conf['grants'] = $this->grants;
@@ -46,12 +43,21 @@ class MenuController extends BaseController
 		$conf['csv_columns']['name'] = array('field' => 'name', 'title' => 'Nombre');
 		$conf['csv_columns']['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
 		$conf['csv_columns']['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
-		$conf['sql'] = array();
-		$conf['sql']['select'] = array('id', 'name', 'created', 'updated', DbAbs::longDatetime($engine, 'created') . " char_created", DbAbs::longDatetime($engine, 'updated') . " char_updated");
-		$conf['sql']['from'] = array('ks_menu', 'a');
 		$conf['filters']['name'] = array('filter'=>'name', 'label'=>'Nombre', 'field'=>'a.name', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['id'] = array('filter'=>'id', 'label'=>'Id', 'field'=>'a.id', 'type'=>'text');
 		return $conf;
+	}
+	
+	private function getQuery()
+	{
+		$conn = $this->get('doctrine.dbal.default_connection');
+		$qb = $conn
+			->createQueryBuilder()
+			->select('id', 'name', 'created', 'updated', 
+				DbAbs::longDatetime($conn, 'created') . " char_created", 
+				DbAbs::longDatetime($conn, 'updated') . " char_updated")
+			->from('ks_menu', 'a');
+		return $qb;
 	}
 	
 	/**
@@ -71,7 +77,7 @@ class MenuController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Config
-		$crud = $this->getCrud1Conf();
+		$crud = $this->getCrudConf();
 		
 		return $this->render('KsAdminLteThemeBundle::menu_list.html.twig', array(
             'hdr' 	=> $hdr,
@@ -85,12 +91,14 @@ class MenuController extends BaseController
      */
     public function listAction(Request $request)
     {
+		$dt_report = $this->get('ks.core.dt_report');
+		
 		// Access Control
 		$this->getGrants();
-		if (! $this->granted('MASK_VIEW')) return $this->get('ks.core.crud1')->getDeniedResponse();
+		if (! $this->granted('MASK_VIEW')) return $dt_report->getDeniedResponse();
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->getList($conn, $request->request, $this->getCrud1Conf());
+		$conf = $this->getCrudConf();
+		return $dt_report->getList($this->getQuery(), $request->request, $conf['filters']);
     }
 	
 	/**
@@ -109,8 +117,14 @@ class MenuController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->exportCsv($conn, $request->query, $this->getCrud1Conf());
+		$conf = $this->getCrudConf();
+		return $this->get('ks.core.dt_report')->exportCsv(
+			$this->getQuery(), 
+			$request->query, 
+			$conf['filters'], 
+			$conf['csv_filename'], 
+			$conf['csv_columns']
+		);
     }
 	
 	/**

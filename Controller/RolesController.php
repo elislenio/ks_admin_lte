@@ -5,8 +5,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Acl\Permission\MaskBuilder;
 use Symfony\Component\Form\Extension\Core\Type as FormType;
-use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Types\Type;
 use Ks\CoreBundle\Controller\BaseController;
 use Ks\CoreBundle\Entity\Role;
 use Ks\CoreBundle\Entity\AccessControlList;
@@ -20,10 +18,8 @@ class RolesController extends BaseController
 		parent::getAcGrants('ROLES');
     }
 	
-	private function getCrud1Conf()
+	private function getCrudConf()
 	{
-		$engine = $this->getDbEngine();
-		
 		$conf = array();
 		$conf['name'] = 'roles';
 		$conf['grants'] = $this->grants;
@@ -42,13 +38,22 @@ class RolesController extends BaseController
 		$conf['csv_columns']['description'] = array('field' => 'description', 'title' => 'Descripción');
 		$conf['csv_columns']['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
 		$conf['csv_columns']['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
-		$conf['sql'] = array();
-		$conf['sql']['select'] = array('id', 'description', 'created', 'updated', DbAbs::longDatetime($engine, 'a.created') . " char_created", DbAbs::longDatetime($engine, 'a.updated') . " char_updated");
-		$conf['sql']['from'] = array('ks_role', 'a');
 		$conf['filters'] = array();
 		$conf['filters']['id'] = array('filter'=>'id', 'label'=>'Id', 'field'=>'a.id', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['description'] = array('filter'=>'description', 'label'=>'Descripción', 'field'=>'a.description', 'type'=>'text', 'condition'=>'contains');
 		return $conf;
+	}
+	
+	private function getQuery()
+	{
+		$conn = $this->get('doctrine.dbal.default_connection');
+		$qb = $conn
+			->createQueryBuilder()
+			->select('id', 'description', 'created', 'updated', 
+				DbAbs::longDatetime($conn, 'a.created') . " char_created", 
+				DbAbs::longDatetime($conn, 'a.updated') . " char_updated")
+			->from('ks_role', 'a');
+		return $qb;
 	}
 	
 	/**
@@ -67,7 +72,7 @@ class RolesController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
-		$crud = $this->getCrud1Conf();
+		$crud = $this->getCrudConf();
 		
 		return $this->render('KsAdminLteThemeBundle::role_list.html.twig', array(
             'hdr' 	=> $hdr, 
@@ -81,12 +86,14 @@ class RolesController extends BaseController
      */
     public function listAction(Request $request)
     {
+		$dt_report = $this->get('ks.core.dt_report');
+		
 		// Access Control
 		$this->getGrants();
-		if (! $this->granted('MASK_VIEW')) return $this->get('ks.core.crud1')->getDeniedResponse();
+		if (! $this->granted('MASK_VIEW')) return $dt_report->getDeniedResponse();
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->getList($conn, $request->request, $this->getCrud1Conf());
+		$conf = $this->getCrudConf();
+		return $dt_report->getList($this->getQuery(), $request->request, $conf['filters']);
     }
 	
 	/**
@@ -105,8 +112,14 @@ class RolesController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->exportCsv($conn, $request->query, $this->getCrud1Conf());
+		$conf = $this->getCrudConf();
+		return $this->get('ks.core.dt_report')->exportCsv(
+			$this->getQuery(), 
+			$request->query, 
+			$conf['filters'], 
+			$conf['csv_filename'], 
+			$conf['csv_columns']
+		);
     }
 	
 	/**
@@ -247,10 +260,8 @@ class RolesController extends BaseController
      ************************************************
 	 */
 	 
-	private function getPermCrud1Conf()
+	private function getPermCrudConf()
 	{
-		$engine = $this->getDbEngine();
-		
 		$conf = array();
 		$conf['name'] = 'roles_p';
 		$conf['grants'] = $this->grants;
@@ -273,16 +284,25 @@ class RolesController extends BaseController
 		$conf['csv_columns']['delete'] = array('field' => 'mask', 'title' => 'Baja');
 		$conf['csv_columns']['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
 		$conf['csv_columns']['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
-		$conf['sql'] = array();
-		$conf['sql']['select'] = array('a.id', 'b.description as role', 'c.description as ac', 'a.mask', 'a.created', 'a.updated', DbAbs::longDatetime($engine, 'a.created') . " char_created", DbAbs::longDatetime($engine, 'a.updated') . " char_updated");
-		$conf['sql']['from'] = array('ks_acl', 'a');
-		$conf['sql']['innerJoin'] = array();
-		$conf['sql']['innerJoin'][] = array('a', 'ks_role', 'b', 'a.role_id = b.id');
-		$conf['sql']['innerJoin'][] = array('a', 'ks_ac', 'c', 'a.ac_id = c.id');
 		$conf['filters'] = array();
 		$conf['filters']['role'] = array('filter'=>'role', 'label'=>'Rol', 'field'=>'b.id', 'type'=>'text', 'condition'=>'eq', 'hidden' => true);
 		$conf['filters']['ac'] = array('filter'=>'ac', 'label'=>'Función', 'field'=>'c.description', 'type'=>'text', 'condition'=>'contains');
 		return $conf;
+	}
+	
+	private function getPermQuery()
+	{
+		$conn = $this->get('doctrine.dbal.default_connection');
+		$qb = $conn
+			->createQueryBuilder()
+			->select('a.id', 'b.description as role', 'c.description as ac', 'a.mask', 'a.created', 'a.updated', 
+				DbAbs::longDatetime($conn, 'a.created') . " char_created", 
+				DbAbs::longDatetime($conn, 'a.updated') . " char_updated")
+			->from('ks_acl', 'a')
+			->innerJoin('a', 'ks_role', 'b', 'a.role_id = b.id')
+			->innerJoin('a', 'ks_ac', 'c', 'a.ac_id = c.id');
+		
+		return $qb;
 	}
 	
 	private function translateGranted($granted)
@@ -338,7 +358,7 @@ class RolesController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Conf
-		$crud = $this->getPermCrud1Conf();
+		$crud = $this->getPermCrudConf();
 		
 		// Sets the value for the hidden field
 		$crud['filters']['role']['value'] = $id;
@@ -357,12 +377,14 @@ class RolesController extends BaseController
      */
     public function permListAction(Request $request)
     {
+		$dt_report = $this->get('ks.core.dt_report');
+		
 		// Access Control
 		$this->getGrants();
-		if (! $this->granted('MASK_VIEW')) return $this->get('ks.core.crud1')->getDeniedResponse();
+		if (! $this->granted('MASK_VIEW')) return $dt_report->getDeniedResponse();
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->getList($conn, $request->request, $this->getPermCrud1Conf());
+		$conf = $this->getPermCrudConf();
+		return $dt_report->getList($this->getPermQuery(), $request->request, $conf['filters']);
     }
 	
 	/**
@@ -375,11 +397,13 @@ class RolesController extends BaseController
 		
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig');
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->exportCsv(
-			$conn,
+		$conf = $this->getPermCrudConf();
+		return $this->get('ks.core.dt_report')->exportCsv(
+			$this->getPermQuery(), 
 			$request->query, 
-			$this->getPermCrud1Conf(), 
+			$conf['filters'], 
+			$conf['csv_filename'], 
+			$conf['csv_columns'], 
 			array($this, 'translateCSV')
 		);
     }

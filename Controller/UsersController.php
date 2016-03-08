@@ -3,8 +3,6 @@ namespace Ks\AdminLteThemeBundle\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Form\Extension\Core\Type as FormType;
-use Doctrine\DBAL\Types\Type;
 use Ks\CoreBundle\Controller\BaseController;
 use Ks\CoreBundle\Entity\User;
 use Ks\CoreBundle\Entity\UserRole;
@@ -18,10 +16,8 @@ class UsersController extends BaseController
 		parent::getAcGrants('USERS');
     }
 	
-	private function getCrud1Conf()
+	private function getCrudConf()
 	{
-		$engine = $this->getDbEngine();
-		
 		$conf = array();
 		$conf['name'] = 'users';
 		$conf['grants'] = $this->grants;
@@ -46,9 +42,6 @@ class UsersController extends BaseController
 		$conf['csv_columns']['locked'] = array('field' => 'locked', 'title' => 'Bloqueado');
 		$conf['csv_columns']['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
 		$conf['csv_columns']['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
-		$conf['sql'] = array();
-		$conf['sql']['select'] = array('a.id', 'a.email', 'a.username', 'a.first_name', 'a.last_name', 'a.enabled', 'a.password_expired', 'a.locked', 'a.created', 'a.updated', DbAbs::longDatetime($engine, 'a.created') . " char_created", DbAbs::longDatetime($engine, 'a.updated') . " char_updated");
-		$conf['sql']['from'] = array('ks_user', 'a');
 		$conf['filters'] = array();
 		$conf['filters']['username'] = array('filter'=>'username', 'label'=>'Usuario', 'field'=>'a.username', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['email'] = array('filter'=>'email', 'label'=>'Email', 'field'=>'a.email', 'type'=>'text');
@@ -61,6 +54,20 @@ class UsersController extends BaseController
 		}
 		
 		return $conf;
+	}
+	
+	private function getQuery()
+	{
+		$conn = $this->get('doctrine.dbal.default_connection');
+		$qb = $conn
+			->createQueryBuilder()
+			->select('a.id', 'a.email', 'a.username', 'a.first_name', 'a.last_name', 
+				'a.enabled', 'a.password_expired', 
+				'a.locked', 'a.created', 'a.updated', 
+				DbAbs::longDatetime($conn, 'a.created') . " char_created", 
+				DbAbs::longDatetime($conn, 'a.updated') . " char_updated")
+			->from('ks_user', 'a');
+		return $qb;
 	}
 	
 	/**
@@ -81,7 +88,7 @@ class UsersController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Config
-		$crud = $this->getCrud1Conf();
+		$crud = $this->getCrudConf();
 		
 		return $this->render('KsAdminLteThemeBundle::user_list.html.twig', array(
             'hdr' 	=> $hdr,
@@ -95,12 +102,14 @@ class UsersController extends BaseController
      */
     public function listAction(Request $request)
     {
+		$dt_report = $this->get('ks.core.dt_report');
+		
 		// Access Control
 		$this->getGrants();
-		if (! $this->granted('MASK_VIEW')) return $this->get('ks.core.crud1')->getDeniedResponse();
+		if (! $this->granted('MASK_VIEW')) return $dt_report->getDeniedResponse();
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->getList($conn, $request->request, $this->getCrud1Conf());
+		$conf = $this->getCrudConf();
+		return $dt_report->getList($this->getQuery(), $request->request, $conf['filters']);
     }
 	
 	/**
@@ -120,8 +129,14 @@ class UsersController extends BaseController
 		if (! $this->granted('MASK_VIEW')) 
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->exportCsv($conn, $request->query, $this->getCrud1Conf());
+		$conf = $this->getCrudConf();
+		return $this->get('ks.core.dt_report')->exportCsv(
+			$this->getQuery(), 
+			$request->query, 
+			$conf['filters'], 
+			$conf['csv_filename'], 
+			$conf['csv_columns']
+		);
     }
 	
 	/**
@@ -315,10 +330,8 @@ class UsersController extends BaseController
      ************************************************
 	 */
 	
-	private function getRolesCrud1Conf()
+	private function getRolesCrudConf()
 	{
-		$engine = $this->getDbEngine();
-		
 		$conf = array();
 		$conf['name'] = 'user_roles';
 		$conf['grants'] = $this->grants;
@@ -335,16 +348,24 @@ class UsersController extends BaseController
 		$conf['csv_columns']['user'] = array('field' => 'user', 'title' => 'Usuario');
 		$conf['csv_columns']['role'] = array('field' => 'role', 'title' => 'Rol');
 		$conf['csv_columns']['char_assigned'] = array('field' => 'char_assigned', 'title' => 'Fecha de asignación');
-		$conf['sql'] = array();
-		$conf['sql']['select'] = array('a.id', 'a.user_id', 'a.role_id', 'b.username as user', 'c.description as role', 'assigned', DbAbs::longDatetime($engine, 'a.assigned') . " char_assigned");
-		$conf['sql']['from'] = array('ks_user_role', 'a');
-		$conf['sql']['innerJoin'] = array();
-		$conf['sql']['innerJoin'][] = array('a', 'ks_user', 'b', 'a.user_id = b.id');
-		$conf['sql']['innerJoin'][] = array('a', 'ks_role', 'c', 'a.role_id = c.id');
 		$conf['filters'] = array();
 		$conf['filters']['user'] = array('filter'=>'user', 'label'=>'Usuario', 'field'=>'a.user_id', 'type'=>'number', 'condition'=>'eq', 'hidden' => true);
 		$conf['filters']['role'] = array('filter'=>'role', 'label'=>'Rol', 'field'=>'c.description', 'type'=>'text', 'condition'=>'contains');
 		return $conf;
+	}
+	
+	private function getRolesQuery()
+	{
+		$conn = $this->get('doctrine.dbal.default_connection');
+		$qb = $conn
+			->createQueryBuilder()
+			->select('a.id', 'a.user_id', 'a.role_id', 'b.username as user', 'c.description as role', 'assigned', 
+				DbAbs::longDatetime($conn, 'a.assigned') . " char_assigned")
+			->from('ks_user_role', 'a')
+			->innerJoin('a', 'ks_user', 'b', 'a.user_id = b.id')
+			->innerJoin('a', 'ks_role', 'c', 'a.role_id = c.id');
+		
+		return $qb;
 	}
 	
 	/**
@@ -369,7 +390,7 @@ class UsersController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Conf
-		$crud = $this->getRolesCrud1Conf();
+		$crud = $this->getRolesCrudConf();
 		
 		// Sets the value for the hidden field
 		$crud['filters']['user']['value'] = $id;
@@ -388,12 +409,14 @@ class UsersController extends BaseController
      */
     public function roleListAction(Request $request)
     {
+		$dt_report = $this->get('ks.core.dt_report');
+		
 		// Access Control
 		$this->getGrants();
-		if (! $this->granted('MASK_VIEW')) return $this->get('ks.core.crud1')->getDeniedResponse();
+		if (! $this->granted('MASK_VIEW')) return $dt_report->getDeniedResponse();
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->getList($conn, $request->request, $this->getRolesCrud1Conf());
+		$conf = $this->getRolesCrudConf();
+		return $dt_report->getList($this->getRolesQuery(), $request->request, $conf['filters']);
     }
 	
 	/**
@@ -402,7 +425,7 @@ class UsersController extends BaseController
     public function rolesExportAction(Request $request)
     {
 		// User
-		$user_id = $this->get('ks.core.crud1')->getExtraSearchValue($request, 'f_user');
+		$user_id = $this->get('ks.core.dt_report')->getExtraSearchValue($request, 'f_user');
 				
 		$em = $this->getDoctrine()->getManager();
 		$user = $em->getRepository('KsCoreBundle:User')->find($user_id);
@@ -419,11 +442,13 @@ class UsersController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->exportCsv(
-			$conn,
+		$conf = $this->getRolesCrudConf();
+		return $this->get('ks.core.dt_report')->exportCsv(
+			$this->getRolesQuery(), 
 			$request->query, 
-			$this->getRolesCrud1Conf()
+			$conf['filters'], 
+			$conf['csv_filename'], 
+			$conf['csv_columns']
 		);
     }
 	

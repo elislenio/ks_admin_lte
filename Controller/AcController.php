@@ -4,7 +4,6 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Form\Extension\Core\Type as FormType;
-use Doctrine\DBAL\Types\Type;
 use Ks\CoreBundle\Controller\BaseController;
 use Ks\CoreBundle\Entity\AccessControl;
 use Ks\CoreBundle\Classes\DbAbs;
@@ -17,10 +16,8 @@ class AcController extends BaseController
 		parent::getAcGrants('ACCESS_CONTROL');
     }
 	
-	private function getCrud1Conf()
+	private function getCrudConf()
 	{
-		$engine = $this->getDbEngine();
-		
 		$conf = array();
 		$conf['name'] = 'acs';
 		$conf['grants'] = $this->grants;
@@ -38,12 +35,21 @@ class AcController extends BaseController
 		$conf['csv_columns']['description'] = array('field' => 'description', 'title' => 'Descripción');
 		$conf['csv_columns']['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
 		$conf['csv_columns']['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
-		$conf['sql'] = array();
-		$conf['sql']['select'] = array('id', 'description', 'created', 'updated', DbAbs::longDatetime($engine, 'created') . " char_created", DbAbs::longDatetime($engine, 'updated') . " char_updated");
-		$conf['sql']['from'] = array('ks_ac', 'a');
 		$conf['filters']['description'] = array('filter'=>'description', 'label'=>'Descripción', 'field'=>'a.description', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['id'] = array('filter'=>'id', 'label'=>'Id', 'field'=>'a.id', 'type'=>'text');
 		return $conf;
+	}
+	
+	private function getQuery()
+	{
+		$conn = $this->get('doctrine.dbal.default_connection');
+		$qb = $conn
+			->createQueryBuilder()
+			->select('id', 'description', 'created', 'updated', 
+				DbAbs::longDatetime($conn, 'created') . " char_created", 
+				DbAbs::longDatetime($conn, 'updated') . " char_updated")
+			->from('ks_ac', 'a');
+		return $qb;
 	}
 	
 	/**
@@ -63,7 +69,7 @@ class AcController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Config
-		$crud = $this->getCrud1Conf();
+		$crud = $this->getCrudConf();
 		
 		return $this->render('KsAdminLteThemeBundle::ac_list.html.twig', array(
             'hdr' 	=> $hdr,
@@ -77,11 +83,14 @@ class AcController extends BaseController
      */
     public function listAction(Request $request)
     {
-		$this->getGrants();
-		if (! $this->granted('MASK_VIEW')) return $this->get('ks.core.crud1')->getDeniedResponse();
+		$dt_report = $this->get('ks.core.dt_report');
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->getList($conn, $request->request, $this->getCrud1Conf(), array($this, 'translateList'));
+		// Access Control
+		$this->getGrants();
+		if (! $this->granted('MASK_VIEW')) return $dt_report->getDeniedResponse();
+		
+		$conf = $this->getCrudConf();
+		return $dt_report->getList($this->getQuery(), $request->request, $conf['filters'], array($this, 'translateList'));
     }
 	
 	/**
@@ -100,8 +109,15 @@ class AcController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->exportCsv($conn, $request->query, $this->getCrud1Conf(), array($this, 'translateCSV'));
+		$conf = $this->getCrudConf();
+		return $this->get('ks.core.dt_report')->exportCsv(
+			$this->getQuery(), 
+			$request->query, 
+			$conf['filters'], 
+			$conf['csv_filename'], 
+			$conf['csv_columns'], 
+			array($this, 'translateCSV')
+		);
     }
 	
 	/**

@@ -5,7 +5,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Acl\Permission\MaskBuilder;
 use Symfony\Component\Form\Extension\Core\Type as FormType;
-use Doctrine\DBAL\Types\Type;
 use Ks\CoreBundle\Controller\BaseController;
 use Ks\CoreBundle\Entity\AccessControlList;
 use Ks\CoreBundle\Classes\DbAbs;
@@ -22,7 +21,7 @@ class AclController extends BaseController
 		$this->grants['MASK_DELETE'] = false;
     }
 	
-	private function getCrud1Conf()
+	private function getCrudConf()
 	{
 		$conf = array();
 		$conf['name'] = 'acls';
@@ -44,16 +43,22 @@ class AclController extends BaseController
 		$conf['csv_columns']['create'] = array('field' => 'mask', 'title' => 'Alta');
 		$conf['csv_columns']['update'] = array('field' => 'mask', 'title' => 'Modificación');
 		$conf['csv_columns']['delete'] = array('field' => 'mask', 'title' => 'Baja');
-		$conf['sql'] = array();
-		$conf['sql']['select'] = array('a.id', 'b.description as role', 'c.description as ac', 'a.mask');
-		$conf['sql']['from'] = array('ks_acl', 'a');
-		$conf['sql']['innerJoin'] = array();
-		$conf['sql']['innerJoin'][] = array('a', 'ks_role', 'b', 'a.role_id = b.id');
-		$conf['sql']['innerJoin'][] = array('a', 'ks_ac', 'c', 'a.ac_id = c.id');
 		$conf['filters'] = array();
 		$conf['filters']['role'] = array('filter'=>'role', 'label'=>'Rol', 'field'=>'b.description', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['ac'] = array('filter'=>'ac', 'label'=>'Función', 'field'=>'c.name', 'type'=>'text', 'condition'=>'contains');
 		return $conf;
+	}
+	
+	private function getQuery()
+	{
+		$conn = $this->get('doctrine.dbal.default_connection');
+		$qb = $conn
+			->createQueryBuilder()
+			->select('a.id', 'b.description as role', 'c.description as ac', 'a.mask')
+			->from('ks_acl', 'a')
+			->innerJoin('a', 'ks_role', 'b', 'a.role_id = b.id')
+			->innerJoin('a', 'ks_ac', 'c', 'a.ac_id = c.id');
+		return $qb;
 	}
 	
 	/**
@@ -73,7 +78,7 @@ class AclController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Config
-		$crud = $this->getCrud1Conf();
+		$crud = $this->getCrudConf();
 		
 		return $this->render('KsAdminLteThemeBundle::acl_list.html.twig', array(
             'hdr' 	=> $hdr,
@@ -87,12 +92,14 @@ class AclController extends BaseController
      */
     public function listAction(Request $request)
     {
+		$dt_report = $this->get('ks.core.dt_report');
+		
 		// Access Control
 		$this->getGrants();
-		if (! $this->granted('MASK_VIEW')) return $this->get('ks.core.crud1')->getDeniedResponse();
+		if (! $this->granted('MASK_VIEW')) return $dt_report->getDeniedResponse();
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->getList($conn, $request->request, $this->getCrud1Conf());
+		$conf = $this->getCrudConf();
+		return $dt_report->getList($this->getQuery(), $request->request, $conf['filters']);
     }
 	
 	private function translateGranted($granted)
@@ -142,8 +149,15 @@ class AclController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->exportCsv($conn, $request->query, $this->getCrud1Conf(), array($this, 'translateCSV'));
+		$conf = $this->getCrudConf();
+		return $this->get('ks.core.dt_report')->exportCsv(
+			$this->getQuery(), 
+			$request->query, 
+			$conf['filters'], 
+			$conf['csv_filename'], 
+			$conf['csv_columns'],
+			array($this, 'translateCSV')
+		);
     }
 	
 	private function getRoleList()

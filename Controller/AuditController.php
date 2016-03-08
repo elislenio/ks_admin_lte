@@ -20,10 +20,8 @@ class AuditController extends BaseController
 		$this->grants['MASK_DELETE'] = false;
     }
 	
-	private function getCrud1Conf()
+	private function getCrudConf()
 	{
-		$engine = $this->getDbEngine();
-		
 		$conf = array();
 		$conf['name'] = 'rep_audit';
 		$conf['grants'] = $this->grants;
@@ -41,15 +39,23 @@ class AuditController extends BaseController
 		$conf['csv_columns']['action'] = array('field' => 'action', 'title' => 'Acción');
 		$conf['csv_columns']['object_id'] = array('field' => 'object_id', 'title' => 'Identificador');
 		$conf['csv_columns']['data'] = array('field' => 'data', 'title' => 'Detalle');
-		$conf['sql'] = array();
-		$conf['sql']['select'] = array('a.id', 'a.username', 'a.object_class', 'a.action', 'a.object_id', 'a.data', 'a.logged_at', DbAbs::longDatetime($engine, 'a.logged_at') . " char_logged_at");
-		$conf['sql']['from'] = array('ext_log_entries', 'a');
 		$conf['filters'] = array();
 		$conf['filters']['logged_at'] = array('filter'=>'logged_at', 'label'=>'Rango de fechas', 'field'=>'a.logged_at', 'type'=>'datetime', 'condition'=>'bt', 'input_type'=>'date_range', 'extra'=>'readonly', 'value_callback'=>'Ks\AdminLteThemeBundle\Classes\DateRangePicker::parseValue');
 		$conf['filters']['username'] = array('filter'=>'username', 'label'=>'Usuario', 'field'=>'a.username', 'type'=>'text', 'condition'=>'eq');
 		$conf['filters']['entity'] = array('filter'=>'entity', 'label'=>'Entidad', 'field'=>'a.object_class', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['action'] = array('filter'=>'action', 'label'=>'Acción', 'field'=>'a.action', 'type'=>'text', 'condition'=>'eq');
 		return $conf;
+	}
+	
+	private function getQuery()
+	{
+		$conn = $this->get('doctrine.dbal.default_connection');
+		$qb = $conn
+			->createQueryBuilder()
+			->select('a.id', 'a.username', 'a.object_class', 'a.action', 'a.object_id', 'a.data', 'a.logged_at', 
+				DbAbs::longDatetime($conn, 'a.logged_at') . " char_logged_at")
+			->from('ext_log_entries', 'a');
+		return $qb;
 	}
 	
 	/**
@@ -70,34 +76,12 @@ class AuditController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Config
-		$crud = $this->getCrud1Conf();
-		
-		/*
-		// PRUEBA
-		$label_attrs = array('class' => 'col-md-3');
-		$attrs = array('class' => 'input-sm');
-		
-		$search_form = $this->get('form.factory')->createNamedBuilder(
-			$crud['name'] . '_sform', 
-			'form', null, 
-			array('attr' => array(
-				'id' 		=> $crud['name'] . '_sform',
-				'class' 	=> 'form-horizontal'
-			))
-		)
-			->setMethod('GET')
-            ->add('logged_at', FormType\TextType::class, array('label' => 'Rango de fechas', 'required' => false, 'label_attr' => $label_attrs, 'attr' => $attrs))
-			->add('username', FormType\TextType::class, array('label' => 'Usuario', 'required' => false, 'label_attr' => $label_attrs, 'attr' => $attrs))
-			->add('entity', FormType\TextType::class, array('label' => 'Entidad', 'required' => false, 'label_attr' => $label_attrs, 'attr' => $attrs))
-			->add('action', FormType\TextType::class, array('label' => 'Acción', 'required' => false, 'label_attr' => $label_attrs, 'attr' => $attrs))
-			->getForm();
-		*/
+		$crud = $this->getCrudConf();
 		
 		return $this->render('KsAdminLteThemeBundle::rep_audit_list.html.twig', array(
             'hdr' 	=> $hdr,
 			'bc' 	=> $bc,
 			'crud' 	=> $crud
-			//,'search_form'	=> $search_form->createView()
         ));
     }
 	
@@ -132,12 +116,14 @@ class AuditController extends BaseController
      */
     public function listAction(Request $request)
     {
+		$dt_report = $this->get('ks.core.dt_report');
+		
 		// Access Control
 		$this->getGrants();
-		if (! $this->granted('MASK_VIEW')) return $this->get('ks.core.crud1')->getDeniedResponse();
+		if (! $this->granted('MASK_VIEW')) return $dt_report->getDeniedResponse();
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->getList($conn, $request->request, $this->getCrud1Conf(), array($this, 'translateList'));
+		$conf = $this->getCrudConf();
+		return $dt_report->getList($this->getQuery(), $request->request, $conf['filters'], array($this, 'translateList'));
     }
 	
 	/**
@@ -157,11 +143,13 @@ class AuditController extends BaseController
 		if (! $this->granted('MASK_VIEW')) 
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->exportCsv(
-			$conn,
+		$conf = $this->getCrudConf();
+		return $this->get('ks.core.dt_report')->exportCsv(
+			$this->getQuery(), 
 			$request->query, 
-			$this->getCrud1Conf(), 
+			$conf['filters'], 
+			$conf['csv_filename'], 
+			$conf['csv_columns'], 
 			array($this, 'translateCSV')
 		);
     }

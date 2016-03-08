@@ -18,7 +18,7 @@ class RepUsersRolesController extends BaseController
 		$this->grants['MASK_DELETE'] = false;
     }
 	
-	private function getCrud1Conf()
+	private function getCrudConf()
 	{
 		$conf = array();
 		$conf['name'] = 'rep_users_roles';
@@ -32,16 +32,22 @@ class RepUsersRolesController extends BaseController
 		$conf['csv_columns'] = array();
 		$conf['csv_columns']['user'] = array('field' => 'user', 'title' => 'Usuario');
 		$conf['csv_columns']['role'] = array('field' => 'role', 'title' => 'Rol');
-		$conf['sql'] = array();
-		$conf['sql']['select'] = array('a.user_id', 'a.role_id', 'b.username as user', 'c.description as role');
-		$conf['sql']['from'] = array('ks_user_role', 'a');
-		$conf['sql']['innerJoin'] = array();
-		$conf['sql']['innerJoin'][] = array('a', 'ks_user', 'b', 'a.user_id = b.id');
-		$conf['sql']['innerJoin'][] = array('a', 'ks_role', 'c', 'a.role_id = c.id');
 		$conf['filters'] = array();
 		$conf['filters']['user'] = array('filter'=>'user', 'label'=>'Usuario', 'field'=>'b.username', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['role'] = array('filter'=>'role', 'label'=>'Rol', 'field'=>'c.description', 'type'=>'text', 'condition'=>'contains');
 		return $conf;
+	}
+	
+	private function getQuery()
+	{
+		$conn = $this->get('doctrine.dbal.default_connection');
+		$qb = $conn
+			->createQueryBuilder()
+			->select('a.user_id', 'a.role_id', 'b.username as user', 'c.description as role')
+			->from('ks_user_role', 'a')
+			->innerJoin('a', 'ks_user', 'b', 'a.user_id = b.id')
+			->innerJoin('a', 'ks_role', 'c', 'a.role_id = c.id');
+		return $qb;
 	}
 	
 	/**
@@ -62,7 +68,7 @@ class RepUsersRolesController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Config
-		$crud = $this->getCrud1Conf();
+		$crud = $this->getCrudConf();
 		
 		return $this->render('KsAdminLteThemeBundle::rep_users_roles_list.html.twig', array(
             'hdr' 	=> $hdr,
@@ -76,12 +82,14 @@ class RepUsersRolesController extends BaseController
      */
     public function listAction(Request $request)
     {
+		$dt_report = $this->get('ks.core.dt_report');
+		
 		// Access Control
 		$this->getGrants();
-		if (! $this->granted('MASK_VIEW')) return $this->get('ks.core.crud1')->getDeniedResponse();
+		if (! $this->granted('MASK_VIEW')) return $dt_report->getDeniedResponse();
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->getList($conn, $request->request, $this->getCrud1Conf());
+		$conf = $this->getCrudConf();
+		return $dt_report->getList($this->getQuery(), $request->request, $conf['filters']);
     }
 	
 	/**
@@ -101,11 +109,13 @@ class RepUsersRolesController extends BaseController
 		if (! $this->granted('MASK_VIEW')) 
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
-		$conn = $this->get('doctrine.dbal.default_connection');
-		return $this->get('ks.core.crud1')->exportCsv(
-			$conn,
+		$conf = $this->getCrudConf();
+		return $this->get('ks.core.dt_report')->exportCsv(
+			$this->getQuery(), 
 			$request->query, 
-			$this->getCrud1Conf()
+			$conf['filters'], 
+			$conf['csv_filename'], 
+			$conf['csv_columns']
 		);
     }
 }
