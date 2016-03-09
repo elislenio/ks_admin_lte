@@ -1,0 +1,2 @@
+{% set file = app.user.picture|default('shadow_user.png') %}
+{{ asset('bundles/ksadminltetheme/images/'~file) }}

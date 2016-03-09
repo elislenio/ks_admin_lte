@@ -40,7 +40,7 @@ class RepAuditController extends BaseController
 		$conn = $this->get('doctrine.dbal.default_connection');
 		$qb = $conn
 			->createQueryBuilder()
-			->select('a.id', 'a.username', 'a.object_class', 'a.action', 'a.object_id', 'a.data', 'a.logged_at', 
+			->select('a.id', 'a.username', 'a.object_class', 'a.version', 'a.action', 'a.object_id', 'a.data', 'a.logged_at', 
 				DbAbs::longDatetime($conn, 'a.logged_at') . " char_logged_at")
 			->from('ext_log_entries', 'a');
 		return $qb;
@@ -78,10 +78,12 @@ class RepAuditController extends BaseController
 		for ($i=0; $i<count($records); $i++)
 		{
 			$data = $records[$i]['data'];
+			$object_class = pathinfo($records[$i]['object_class']);
+			
 			if ($data)
-			{
 				$records[$i]['data'] = json_encode(unserialize($data));
-			}
+			
+			$records[$i]['object_class'] = $object_class['filename'];
 		}
 		
 		return $records;
@@ -93,6 +95,10 @@ class RepAuditController extends BaseController
 		{
 			case 'data':
 				return json_encode(unserialize($value));
+				break;
+			case 'object_class':
+				$object_class = pathinfo($value);
+				return $object_class['filename'];
 				break;
 		}
 		
@@ -134,10 +140,11 @@ class RepAuditController extends BaseController
 		$conf = $this->getCrudConf();
 		$csv_filename = 'rep_audit_' . date('mdHis') . '.csv';
 		$csv_columns = array();
-		$csv_columns['logged_at'] = array('field' => 'logged_at', 'title' => 'Fecha');
 		$csv_columns['id'] = array('field' => 'id', 'title' => 'Log Id');
+		$csv_columns['logged_at'] = array('field' => 'logged_at', 'title' => 'Fecha');
 		$csv_columns['username'] = array('field' => 'username', 'title' => 'Usuario');
 		$csv_columns['object_class'] = array('field' => 'object_class', 'title' => 'Entidad');
+		$csv_columns['version'] = array('field' => 'version', 'title' => 'Versión');
 		$csv_columns['action'] = array('field' => 'action', 'title' => 'Acción');
 		$csv_columns['object_id'] = array('field' => 'object_id', 'title' => 'Identificador');
 		$csv_columns['data'] = array('field' => 'data', 'title' => 'Detalle');

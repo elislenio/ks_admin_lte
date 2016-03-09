@@ -5,14 +5,14 @@ $.extend( $.fn.dataTable.defaults, {
 		style:    'multi'
 	},
 	language: {
-		processing:     '<img src="/ks-sbadmin-bundle/images/abm_loader.gif" />',
+		processing:     '<img src="/bundles/ksadminltetheme/images/abm_loader.gif" />',
 		search:         "Buscar:",
 		lengthMenu:     "Mostrar _MENU_ registros",
 		info:           "Registros _START_ al _END_ de _TOTAL_",
 		infoEmpty:      "",
 		infoFiltered:   "(filtrado de un total de _MAX_ registros)",
 		infoPostFix:    "",
-		loadingRecords: '<img src="/ks-sbadmin-bundle/images/abm_loader.gif" />',
+		loadingRecords: '<img src="/bundles/ksadminltetheme/images/abm_loader.gif" />',
 		zeroRecords:    "No se encontraron resultados",
 		emptyTable:     "No se encontraron resultados",
 		paginate: {

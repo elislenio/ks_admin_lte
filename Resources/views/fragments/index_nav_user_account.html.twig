@@ -1,12 +1,12 @@
 <li class="dropdown user user-menu">
 	<a href="#" class="dropdown-toggle" data-toggle="dropdown">
-	  <img src="{{ theme.user_image(app.user.picture) }}" class="user-image" alt="User Image">
+	  <img src="{{ include('KsAdminLteThemeBundle:fragments:ks_user_image.html.twig') }}" class="user-image" alt="User Image" {{ theme.user_img_err() }}>
 	  <span class="hidden-xs">{{ app.user.username }}</span>
 	</a>
 	<ul class="dropdown-menu">
 	  <!-- User image -->
 	  <li class="user-header">
-		<img src="{{ theme.user_image(app.user.picture) }}" class="img-circle" alt="User Image">
+		<img src="{{ include('KsAdminLteThemeBundle:fragments:ks_user_image.html.twig') }}" class="img-circle" alt="User Image" {{ theme.user_img_err() }}>
 		<p>
 		  {{ app.user.username }}
 		  <!--<small>Member since Nov. 2012</small>-->
