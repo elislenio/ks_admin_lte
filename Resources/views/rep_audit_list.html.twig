@@ -2,7 +2,7 @@
 
 {% block inlinecss %}
 	{{ include('KsAdminLteThemeBundle:fragments:crud1_css.html.twig') }}
-	<link href="{{ asset('ks-adminlte-bundle/bower_components/json-human/css/json.human.css') }}" rel="stylesheet">
+	<link href="{{ asset('bundles/ksadminltetheme/bower_components/json-human/css/json.human.css') }}" rel="stylesheet">
 <style>
 .jh-key {
     width: 10px;
@@ -26,7 +26,7 @@
 {% block javascripts %}
 	{{ include('KsAdminLteThemeBundle::rep_audit_list_dt.html.twig', { 'crud': crud }) }}
 	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud, 'autoload':'false' }) }}
-<script src="{{ asset('ks-adminlte-bundle/bower_components/json-human/src/json.human.js') }}"></script>
+<script src="{{ asset('bundles/ksadminltetheme/bower_components/json-human/src/json.human.js') }}"></script>
 <script>
 
 /* Formatting function for row details */

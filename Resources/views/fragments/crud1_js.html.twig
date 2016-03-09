@@ -17,9 +17,9 @@
 {% if url_delete %}{% set url_delete = path(url_delete) %}{% endif %}
 {% if url_export %}{% set url_export = path(url_export) %}{% endif %}
 
-<script src="{{ asset('ks-adminlte-bundle/dt_defaults.js') }}"></script>
-<script src="{{ asset('ks-adminlte-bundle/drp_defaults.js') }}"></script>
-<script src="{{ asset('ks-adminlte-bundle/dt_crud.js') }}"></script>
+<script src="{{ asset('bundles/ksadminltetheme/dt_defaults.js') }}"></script>
+<script src="{{ asset('bundles/ksadminltetheme/drp_defaults.js') }}"></script>
+<script src="{{ asset('bundles/ksadminltetheme/dt_crud.js') }}"></script>
 <script>
 var crud_{{ name }} = new CrudDT(
 	'{{ name }}',

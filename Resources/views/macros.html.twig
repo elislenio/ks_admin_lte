@@ -1,6 +1,6 @@
 {% macro user_image(picture) %}
 {% set file = picture|default('shadow_user.png') %}
-{{ asset('ks-adminlte-bundle/images/'~file) }}
+{{ asset('bundles/ksadminltetheme/images/'~file) }}
 {% endmacro %}
 
 {% macro page_header(hdr) %}
