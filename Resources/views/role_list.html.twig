@@ -16,6 +16,7 @@
 {% endblock %}
 
 {% block javascripts %}
+	{{ include('KsAdminLteThemeBundle::role_list_dt.html.twig', { 'crud': crud }) }}
 	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud }) }}
 <script>
 crud_{{ crud['name'] }}.editAcl = function(id)

@@ -34,13 +34,6 @@ class MenuController extends BaseController
 			'export'	=> 'menus_export',
 			'items'		=> 'menu_items'
 		);
-		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_menus.html.twig';
-		$conf['csv_filename'] = 'menus_' . date('mdHis') . '.csv';
-		$conf['csv_columns'] = array();
-		$conf['csv_columns']['id'] = array('field' => 'id', 'title' => 'Id');
-		$conf['csv_columns']['name'] = array('field' => 'name', 'title' => 'Nombre');
-		$conf['csv_columns']['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
-		$conf['csv_columns']['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
 		$conf['filters']['name'] = array('filter'=>'name', 'label'=>'Nombre', 'field'=>'a.name', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['id'] = array('filter'=>'id', 'label'=>'Id', 'field'=>'a.id', 'type'=>'text');
 		return $conf;
@@ -116,12 +109,19 @@ class MenuController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		$conf = $this->getCrudConf();
+		$csv_filename = 'menus_' . date('mdHis') . '.csv';
+		$csv_columns = array();
+		$csv_columns['id'] = array('field' => 'id', 'title' => 'Id');
+		$csv_columns['name'] = array('field' => 'name', 'title' => 'Nombre');
+		$csv_columns['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
+		$csv_columns['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
+		
 		return $this->get('ks.core.dt_report')->exportCsv(
 			$this->getQuery(), 
 			$request->query, 
 			$conf['filters'], 
-			$conf['csv_filename'], 
-			$conf['csv_columns']
+			$csv_filename, 
+			$csv_columns
 		);
     }
 	
@@ -244,7 +244,7 @@ class MenuController extends BaseController
      ************************************************
 	 */
 	
-	private function getItemsCrud1Conf()
+	private function getItemsCrudConf()
 	{
 		$conf = array();
 		$conf['name'] = 'menu_items';
@@ -315,7 +315,7 @@ class MenuController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Conf
-		$crud = $this->getItemsCrud1Conf();
+		$crud = $this->getItemsCrudConf();
 		$crud['url_param'] = array();
 		$crud['url_param']['create'] = $id;
 		

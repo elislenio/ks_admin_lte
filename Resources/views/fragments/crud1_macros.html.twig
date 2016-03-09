@@ -1,14 +1,3 @@
-{% macro dt_ajax(url) %}
-		ajax: {
-			url: '{{ path(url) }}',
-			type: 'POST',
-			data: function ( d ) {
-				self.last_post_data = $.extend( {}, d, {"extra_search": self.form_filters.serializeArray()} );
-				return self.last_post_data;
-			}
-		}
-{% endmacro %}
-
 {% macro dt_checkbox(data) %}
 			{ 
 				data: "{{ data }}",

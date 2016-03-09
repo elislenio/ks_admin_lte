@@ -27,13 +27,6 @@ class AcController extends BaseController
 			'delete'	=> 'acs_delete',
 			'export'	=> 'acs_export'
 		);
-		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_acs.html.twig';
-		$conf['csv_filename'] = 'funciones_' . date('mdHis') . '.csv';
-		$conf['csv_columns'] = array();
-		$conf['csv_columns']['id'] = array('field' => 'id', 'title' => 'Id');
-		$conf['csv_columns']['description'] = array('field' => 'description', 'title' => 'Descripción');
-		$conf['csv_columns']['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
-		$conf['csv_columns']['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
 		$conf['filters']['description'] = array('filter'=>'description', 'label'=>'Descripción', 'field'=>'a.description', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['id'] = array('filter'=>'id', 'label'=>'Id', 'field'=>'a.id', 'type'=>'text');
 		return $conf;
@@ -109,12 +102,19 @@ class AcController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		$conf = $this->getCrudConf();
+		$csv_filename = 'funciones_' . date('mdHis') . '.csv';
+		$csv_columns = array();
+		$csv_columns['id'] = array('field' => 'id', 'title' => 'Id');
+		$csv_columns['description'] = array('field' => 'description', 'title' => 'Descripción');
+		$csv_columns['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
+		$csv_columns['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
+		
 		return $this->get('ks.core.dt_report')->exportCsv(
 			$this->getQuery(), 
 			$request->query, 
 			$conf['filters'], 
-			$conf['csv_filename'], 
-			$conf['csv_columns'], 
+			$csv_filename, 
+			$csv_columns, 
 			array($this, 'translateCSV')
 		);
     }

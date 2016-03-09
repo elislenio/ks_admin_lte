@@ -1,6 +1,8 @@
 {% import 'KsAdminLteThemeBundle:fragments:crud1_macros.html.twig' as c1m %}
-	this.table = this.table.DataTable({
-		{{ c1m.dt_ajax(urls['list']) }},
+{% set grants = crud['grants'] %}
+{% set name = crud['name'] %}
+<script>
+	var {{name}}_dt_config = {
 		columns: [
 		{% if grants['MASK_DELETE']|default(false) %}
 			{{ c1m.dt_checkbox('id') }},
@@ -34,4 +36,5 @@
 		],
 		rowId: 'id',
 		order: [[ 2, "asc" ]]
-	});
+	};
+</script>

@@ -30,13 +30,6 @@ class RolesController extends BaseController
 			'export'	=> 'roles_export',
 			'acl'		=> 'role_acl'
 		);
-		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_roles.html.twig';
-		$conf['csv_filename'] = 'roles_' . date('mdHis') . '.csv';
-		$conf['csv_columns'] = array();
-		$conf['csv_columns']['id'] = array('field' => 'id', 'title' => 'Id');
-		$conf['csv_columns']['description'] = array('field' => 'description', 'title' => 'Descripción');
-		$conf['csv_columns']['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
-		$conf['csv_columns']['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
 		$conf['filters'] = array();
 		$conf['filters']['id'] = array('filter'=>'id', 'label'=>'Id', 'field'=>'a.id', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['description'] = array('filter'=>'description', 'label'=>'Descripción', 'field'=>'a.description', 'type'=>'text', 'condition'=>'contains');
@@ -112,12 +105,19 @@ class RolesController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		$conf = $this->getCrudConf();
+		$csv_filename = 'roles_' . date('mdHis') . '.csv';
+		$csv_columns = array();
+		$csv_columns['id'] = array('field' => 'id', 'title' => 'Id');
+		$csv_columns['description'] = array('field' => 'description', 'title' => 'Descripción');
+		$csv_columns['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
+		$csv_columns['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
+		
 		return $this->get('ks.core.dt_report')->exportCsv(
-			$this->getQuery(), 
-			$request->query, 
-			$conf['filters'], 
-			$conf['csv_filename'], 
-			$conf['csv_columns']
+			$this->getQuery(),
+			$request->query,
+			$conf['filters'],
+			$csv_filename,
+			$csv_columns
 		);
     }
 	
@@ -254,18 +254,6 @@ class RolesController extends BaseController
 			'delete'	=> 'role_acl_delete',
 			'export'	=> 'role_acl_export'
 		);
-		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_role_acl.html.twig';
-		$conf['csv_filename'] = 'rol_permisos_' . date('mdHis') . '.csv';
-		$conf['csv_columns'] = array();
-		$conf['csv_columns']['id'] = array('field' => 'id', 'title' => 'Id');
-		$conf['csv_columns']['role'] = array('field' => 'role', 'title' => 'Rol');
-		$conf['csv_columns']['ac'] = array('field' => 'ac', 'title' => 'Función');
-		$conf['csv_columns']['read'] = array('field' => 'mask', 'title' => 'Lectura');
-		$conf['csv_columns']['create'] = array('field' => 'mask', 'title' => 'Alta');
-		$conf['csv_columns']['update'] = array('field' => 'mask', 'title' => 'Modificación');
-		$conf['csv_columns']['delete'] = array('field' => 'mask', 'title' => 'Baja');
-		$conf['csv_columns']['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
-		$conf['csv_columns']['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
 		$conf['filters'] = array();
 		$conf['filters']['role'] = array('filter'=>'role', 'label'=>'Rol', 'field'=>'b.id', 'type'=>'text', 'condition'=>'eq', 'hidden' => true);
 		$conf['filters']['ac'] = array('filter'=>'ac', 'label'=>'Función', 'field'=>'c.description', 'type'=>'text', 'condition'=>'contains');
@@ -355,7 +343,7 @@ class RolesController extends BaseController
     }
 	
 	/**
-     * @Route("/roles/acl/list/{id}", name="role_acl_list", defaults={"id" = 0})
+     * @Route("/roles/acl/list", name="role_acl_list")
      */
     public function aclListAction(Request $request)
     {
@@ -380,12 +368,24 @@ class RolesController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig');
 		
 		$conf = $this->getPermCrudConf();
+		$csv_filename = 'rol_permisos_' . date('mdHis') . '.csv';
+		$csv_columns = array();
+		$csv_columns['id'] = array('field' => 'id', 'title' => 'Id');
+		$csv_columns['role'] = array('field' => 'role', 'title' => 'Rol');
+		$csv_columns['ac'] = array('field' => 'ac', 'title' => 'Función');
+		$csv_columns['read'] = array('field' => 'mask', 'title' => 'Lectura');
+		$csv_columns['create'] = array('field' => 'mask', 'title' => 'Alta');
+		$csv_columns['update'] = array('field' => 'mask', 'title' => 'Modificación');
+		$csv_columns['delete'] = array('field' => 'mask', 'title' => 'Baja');
+		$csv_columns['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
+		$csv_columns['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
+		
 		return $this->get('ks.core.dt_report')->exportCsv(
-			$this->getPermQuery(), 
-			$request->query, 
-			$conf['filters'], 
-			$conf['csv_filename'], 
-			$conf['csv_columns'], 
+			$this->getPermQuery(),
+			$request->query,
+			$conf['filters'],
+			$csv_filename,
+			$csv_columns,
 			array($this, 'translateCSV')
 		);
     }

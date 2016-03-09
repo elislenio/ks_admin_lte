@@ -28,16 +28,6 @@ class RepAclController extends BaseController
 			'list'		=> 'acls_list',
 			'export'	=> 'acls_export'
 		);
-		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_acls.html.twig';
-		$conf['csv_filename'] = 'permisos_' . date('mdHis') . '.csv';
-		$conf['csv_columns'] = array();
-		$conf['csv_columns']['id'] = array('field' => 'id', 'title' => 'Id');
-		$conf['csv_columns']['role'] = array('field' => 'role', 'title' => 'Rol');
-		$conf['csv_columns']['ac'] = array('field' => 'ac', 'title' => 'Función');
-		$conf['csv_columns']['read'] = array('field' => 'mask', 'title' => 'Lectura');
-		$conf['csv_columns']['create'] = array('field' => 'mask', 'title' => 'Alta');
-		$conf['csv_columns']['update'] = array('field' => 'mask', 'title' => 'Modificación');
-		$conf['csv_columns']['delete'] = array('field' => 'mask', 'title' => 'Baja');
 		$conf['filters'] = array();
 		$conf['filters']['role'] = array('filter'=>'role', 'label'=>'Rol', 'field'=>'b.description', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['ac'] = array('filter'=>'ac', 'label'=>'Función', 'field'=>'c.name', 'type'=>'text', 'condition'=>'contains');
@@ -145,12 +135,22 @@ class RepAclController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		$conf = $this->getCrudConf();
+		$csv_filename = 'permisos_' . date('mdHis') . '.csv';
+		$csv_columns = array();
+		$csv_columns['id'] = array('field' => 'id', 'title' => 'Id');
+		$csv_columns['role'] = array('field' => 'role', 'title' => 'Rol');
+		$csv_columns['ac'] = array('field' => 'ac', 'title' => 'Función');
+		$csv_columns['read'] = array('field' => 'mask', 'title' => 'Lectura');
+		$csv_columns['create'] = array('field' => 'mask', 'title' => 'Alta');
+		$csv_columns['update'] = array('field' => 'mask', 'title' => 'Modificación');
+		$csv_columns['delete'] = array('field' => 'mask', 'title' => 'Baja');
+		
 		return $this->get('ks.core.dt_report')->exportCsv(
 			$this->getQuery(), 
 			$request->query, 
 			$conf['filters'], 
-			$conf['csv_filename'], 
-			$conf['csv_columns'],
+			$csv_filename, 
+			$csv_columns,
 			array($this, 'translateCSV')
 		);
     }

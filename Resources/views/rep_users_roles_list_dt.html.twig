@@ -1,10 +1,13 @@
 {% import 'KsAdminLteThemeBundle:fragments:crud1_macros.html.twig' as c1m %}
-	this.table = this.table.DataTable({
-		{{ c1m.dt_ajax(urls['list']) }},
+{% set grants = crud['grants'] %}
+{% set name = crud['name'] %}
+<script>
+	var {{name}}_dt_config = {
 		select: false,
 		columns: [
 			{ data: "user", title: "Usuario"},
 			{ data: "role", title: "Rol" }
 		],
 		order: [[ 0, "asc" ], [ 1, "asc" ]]
-	});
+	};
+</script>

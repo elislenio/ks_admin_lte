@@ -15,7 +15,9 @@
 	</div>
 {% endblock %}
 
-{% block javascripts %}
+{% block javascripts %} 
+	{{ include('KsAdminLteThemeBundle::role_acl_list_dt.html.twig', { 'crud': crud }) }}
+	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud }) }}
 <script>
 function getGrantedIconView(mask, granted)
 {
@@ -24,6 +26,5 @@ function getGrantedIconView(mask, granted)
 	else 
 		return '<span class="glyphicon glyphicon-remove-sign text-danger" aria-hidden="true"></span>';
 }
-</script> 
-	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud }) }}
+</script>
 {% endblock %}

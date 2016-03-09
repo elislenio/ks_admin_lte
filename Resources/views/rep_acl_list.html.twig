@@ -16,6 +16,8 @@
 {% endblock %}
 
 {% block javascripts %}
+	{{ include('KsAdminLteThemeBundle::rep_acl_list_dt.html.twig', { 'crud': crud }) }}
+	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud }) }}
 <script>
 function getGrantedIconView(mask, granted)
 {
@@ -25,5 +27,4 @@ function getGrantedIconView(mask, granted)
 		return '<span class="glyphicon glyphicon-remove-sign text-danger" aria-hidden="true"></span>';
 }
 </script>
-	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud }) }}
 {% endblock %}

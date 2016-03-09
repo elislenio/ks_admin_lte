@@ -27,11 +27,6 @@ class RepUsersRolesController extends BaseController
 			'list'		=> 'rep_users_roles_list',
 			'export'	=> 'rep_users_roles_export'
 		);
-		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_rep_users_roles.html.twig';
-		$conf['csv_filename'] = 'rep_usuarios_roles_' . date('mdHis') . '.csv';
-		$conf['csv_columns'] = array();
-		$conf['csv_columns']['user'] = array('field' => 'user', 'title' => 'Usuario');
-		$conf['csv_columns']['role'] = array('field' => 'role', 'title' => 'Rol');
 		$conf['filters'] = array();
 		$conf['filters']['user'] = array('filter'=>'user', 'label'=>'Usuario', 'field'=>'b.username', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['role'] = array('filter'=>'role', 'label'=>'Rol', 'field'=>'c.description', 'type'=>'text', 'condition'=>'contains');
@@ -110,12 +105,17 @@ class RepUsersRolesController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		$conf = $this->getCrudConf();
+		$csv_filename = 'rep_usuarios_roles_' . date('mdHis') . '.csv';
+		$csv_columns = array();
+		$csv_columns['user'] = array('field' => 'user', 'title' => 'Usuario');
+		$csv_columns['role'] = array('field' => 'role', 'title' => 'Rol');
+		
 		return $this->get('ks.core.dt_report')->exportCsv(
 			$this->getQuery(), 
 			$request->query, 
 			$conf['filters'], 
-			$conf['csv_filename'], 
-			$conf['csv_columns']
+			$csv_filename, 
+			$csv_columns
 		);
     }
 }

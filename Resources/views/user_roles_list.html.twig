@@ -16,5 +16,6 @@
 {% endblock %}
 
 {% block javascripts %}
+	{{ include('KsAdminLteThemeBundle::user_roles_list_dt.html.twig', { 'crud': crud }) }}
 	{{ include('KsAdminLteThemeBundle:fragments:crud1_js.html.twig', { 'crud': crud }) }}
 {% endblock %}

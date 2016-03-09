@@ -1,6 +1,8 @@
 {% import 'KsAdminLteThemeBundle:fragments:crud1_macros.html.twig' as c1m %}
-	this.table = this.table.DataTable({
-		{{ c1m.dt_ajax(urls['list']) }},
+{% set grants = crud['grants'] %}
+{% set name = crud['name'] %}
+<script>
+	var {{name}}_dt_config = {
 		select: false,
 		deferLoading: 0,
 		columns: [
@@ -24,4 +26,5 @@
 		],
 		rowId: 'id',
 		order: [[ 0, "desc" ]]
-	});
+	};
+</script>

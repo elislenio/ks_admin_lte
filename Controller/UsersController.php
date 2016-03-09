@@ -30,28 +30,13 @@ class UsersController extends BaseController
 			'roles'		=> 'user_roles',
 			'pwdreset'	=> 'users_pwd_reset'
 		);
-		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_users.html.twig';
-		$conf['csv_filename'] = 'usuarios_' . date('mdHis') . '.csv';
-		$conf['csv_columns'] = array();
-		$conf['csv_columns']['id'] = array('field' => 'id', 'title' => 'Id');
-		$conf['csv_columns']['username'] = array('field' => 'username', 'title' => 'Usuario');
-		$conf['csv_columns']['email'] = array('field' => 'email', 'title' => 'Email');
-		$conf['csv_columns']['first_name'] = array('field' => 'first_name', 'title' => 'Nombre');
-		$conf['csv_columns']['last_name'] = array('field' => 'last_name', 'title' => 'Apellido');
-		$conf['csv_columns']['enabled'] = array('field' => 'enabled', 'title' => 'Habilitado');
-		$conf['csv_columns']['locked'] = array('field' => 'locked', 'title' => 'Bloqueado');
-		$conf['csv_columns']['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
-		$conf['csv_columns']['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
 		$conf['filters'] = array();
 		$conf['filters']['username'] = array('filter'=>'username', 'label'=>'Usuario', 'field'=>'a.username', 'type'=>'text', 'condition'=>'contains');
 		$conf['filters']['email'] = array('filter'=>'email', 'label'=>'Email', 'field'=>'a.email', 'type'=>'text');
 		$conf['filters']['id'] = array('filter'=>'id', 'label'=>'Id', 'field'=>'a.id', 'type'=>'number');
 		
 		if ( $this->get('ks.core.ac')->localPasswordEnabled() ) 
-		{
-			$conf['csv_columns']['password_expired'] = array('field' => 'password_expired', 'title' => 'Contraseña expirada');
 			$conf['filters']['pwd_exp'] = array('filter'=>'pwd_exp', 'label'=>'Contraseña expirada', 'field'=>'a.password_expired', 'type'=>'number', 'condition'=>'eq', 'input_type'=>'bool1');
-		}
 		
 		return $conf;
 	}
@@ -130,12 +115,27 @@ class UsersController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		$conf = $this->getCrudConf();
+		$csv_filename = 'usuarios_' . date('mdHis') . '.csv';
+		$csv_columns = array();
+		$csv_columns['id'] = array('field' => 'id', 'title' => 'Id');
+		$csv_columns['username'] = array('field' => 'username', 'title' => 'Usuario');
+		$csv_columns['email'] = array('field' => 'email', 'title' => 'Email');
+		$csv_columns['first_name'] = array('field' => 'first_name', 'title' => 'Nombre');
+		$csv_columns['last_name'] = array('field' => 'last_name', 'title' => 'Apellido');
+		$csv_columns['enabled'] = array('field' => 'enabled', 'title' => 'Habilitado');
+		$csv_columns['locked'] = array('field' => 'locked', 'title' => 'Bloqueado');
+		$csv_columns['char_created'] = array('field' => 'char_created', 'title' => 'Fecha de creación');
+		$csv_columns['char_updated'] = array('field' => 'char_updated', 'title' => 'Fecha de actualización');
+		
+		if ( $this->get('ks.core.ac')->localPasswordEnabled() ) 
+			$csv_columns['password_expired'] = array('field' => 'password_expired', 'title' => 'Contraseña expirada');
+		
 		return $this->get('ks.core.dt_report')->exportCsv(
 			$this->getQuery(), 
 			$request->query, 
 			$conf['filters'], 
-			$conf['csv_filename'], 
-			$conf['csv_columns']
+			$csv_filename,
+			$csv_columns
 		);
     }
 	
@@ -340,13 +340,6 @@ class UsersController extends BaseController
 			'delete'	=> 'user_roles_delete',
 			'export'	=> 'user_roles_export'
 		);
-		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_user_roles.html.twig';
-		$conf['csv_filename'] = 'usuario_roles_' . date('mdHis') . '.csv';
-		$conf['csv_columns'] = array();
-		$conf['csv_columns']['id'] = array('field' => 'id', 'title' => 'Id');
-		$conf['csv_columns']['user'] = array('field' => 'user', 'title' => 'Usuario');
-		$conf['csv_columns']['role'] = array('field' => 'role', 'title' => 'Rol');
-		$conf['csv_columns']['char_assigned'] = array('field' => 'char_assigned', 'title' => 'Fecha de asignación');
 		$conf['filters'] = array();
 		$conf['filters']['user'] = array('filter'=>'user', 'label'=>'Usuario', 'field'=>'a.user_id', 'type'=>'number', 'condition'=>'eq', 'hidden' => true);
 		$conf['filters']['role'] = array('filter'=>'role', 'label'=>'Rol', 'field'=>'c.description', 'type'=>'text', 'condition'=>'contains');
@@ -404,7 +397,7 @@ class UsersController extends BaseController
     }
 	
 	/**
-     * @Route("/users/roles/list/{id}", name="user_roles_list", defaults={"id" = 0})
+     * @Route("/users/roles/list", name="user_roles_list")
      */
     public function roleListAction(Request $request)
     {
@@ -442,12 +435,19 @@ class UsersController extends BaseController
 		if (! $this->granted('MASK_VIEW')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		$conf = $this->getRolesCrudConf();
+		$csv_filename = 'usuario_roles_' . date('mdHis') . '.csv';
+		$csv_columns = array();
+		$csv_columns['id'] = array('field' => 'id', 'title' => 'Id');
+		$csv_columns['user'] = array('field' => 'user', 'title' => 'Usuario');
+		$csv_columns['role'] = array('field' => 'role', 'title' => 'Rol');
+		$csv_columns['char_assigned'] = array('field' => 'char_assigned', 'title' => 'Fecha de asignación');
+		
 		return $this->get('ks.core.dt_report')->exportCsv(
 			$this->getRolesQuery(), 
 			$request->query, 
 			$conf['filters'], 
-			$conf['csv_filename'], 
-			$conf['csv_columns']
+			$csv_filename, 
+			$csv_columns
 		);
     }
 	

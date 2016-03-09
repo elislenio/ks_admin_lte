@@ -27,16 +27,6 @@ class RepAuditController extends BaseController
 			'list'		=> 'rep_audit_list',
 			'export'	=> 'rep_audit_export'
 		);
-		$conf['dt'] = 'KsAdminLteThemeBundle:fragments:crud1_dt_rep_audit.html.twig';
-		$conf['csv_filename'] = 'rep_audit_' . date('mdHis') . '.csv';
-		$conf['csv_columns'] = array();
-		$conf['csv_columns']['logged_at'] = array('field' => 'logged_at', 'title' => 'Fecha');
-		$conf['csv_columns']['id'] = array('field' => 'id', 'title' => 'Log Id');
-		$conf['csv_columns']['username'] = array('field' => 'username', 'title' => 'Usuario');
-		$conf['csv_columns']['object_class'] = array('field' => 'object_class', 'title' => 'Entidad');
-		$conf['csv_columns']['action'] = array('field' => 'action', 'title' => 'Acción');
-		$conf['csv_columns']['object_id'] = array('field' => 'object_id', 'title' => 'Identificador');
-		$conf['csv_columns']['data'] = array('field' => 'data', 'title' => 'Detalle');
 		$conf['filters'] = array();
 		$conf['filters']['logged_at'] = array('filter'=>'logged_at', 'label'=>'Rango de fechas', 'field'=>'a.logged_at', 'type'=>'datetime', 'condition'=>'bt', 'input_type'=>'date_range', 'extra'=>'readonly', 'value_callback'=>'Ks\AdminLteThemeBundle\Classes\DateRangePicker::parseValue');
 		$conf['filters']['username'] = array('filter'=>'username', 'label'=>'Usuario', 'field'=>'a.username', 'type'=>'text', 'condition'=>'eq');
@@ -142,12 +132,22 @@ class RepAuditController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		$conf = $this->getCrudConf();
+		$csv_filename = 'rep_audit_' . date('mdHis') . '.csv';
+		$csv_columns = array();
+		$csv_columns['logged_at'] = array('field' => 'logged_at', 'title' => 'Fecha');
+		$csv_columns['id'] = array('field' => 'id', 'title' => 'Log Id');
+		$csv_columns['username'] = array('field' => 'username', 'title' => 'Usuario');
+		$csv_columns['object_class'] = array('field' => 'object_class', 'title' => 'Entidad');
+		$csv_columns['action'] = array('field' => 'action', 'title' => 'Acción');
+		$csv_columns['object_id'] = array('field' => 'object_id', 'title' => 'Identificador');
+		$csv_columns['data'] = array('field' => 'data', 'title' => 'Detalle');
+		
 		return $this->get('ks.core.dt_report')->exportCsv(
 			$this->getQuery(), 
 			$request->query, 
 			$conf['filters'], 
-			$conf['csv_filename'], 
-			$conf['csv_columns'], 
+			$csv_filename, 
+			$csv_columns, 
 			array($this, 'translateCSV')
 		);
     }
