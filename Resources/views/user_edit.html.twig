@@ -17,7 +17,7 @@
 			{% if ac.localPasswordEnabled() %}
 				{{ form_row(form.password_expired, {'label': 'Contraseña expirada'}) }}
 			{% endif %}
-			{{ form_row(form.locked, {'label': 'Bloqueado'}) }}
+			{{ form_row(form.enabled, {'label': 'Habilitado'}) }}
 			{{ form_row(form.save, {'label': 'Guardar'}) }}
 			{{ form_end(form) }}
 		</div>

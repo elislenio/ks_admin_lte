@@ -40,12 +40,6 @@
 					return getGrantedIconView(mask, data);
 				}
 			}
-		{% if grants['MASK_EDIT']|default(false) %}
-			,{{ c1m.dt_action_edit('id', name) }}
-		{% endif %}
-		{% if grants['MASK_DELETE']|default(false) %}
-			,{{ c1m.dt_action_delete('id', name) }}
-		{% endif %}
 		],
 		rowId: 'id',
 		order: [[ 1, "asc" ], [ 2, "asc" ]]

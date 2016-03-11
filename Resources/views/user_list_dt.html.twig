@@ -1,24 +1,35 @@
 {% import 'KsAdminLteThemeBundle:fragments:crud1_macros.html.twig' as c1m %}
 {% set grants = crud['grants'] %}
 {% set name = crud['name'] %}
+
+{# dinamic columns #}
+{% set offset = 0 %}
+{% set username_pos = 1 %}
+{% set last_login_pos = 10 %}
+{% set created_pos = 11 %}
+{% set updated_pos = 12 %}
 <script>
 	var {{name}}_dt_config = {
 		columns: [
 		{% if grants['MASK_DELETE']|default(false) %}
+			{% set offset = offset + 1 %}
 			{{ c1m.dt_checkbox('id') }},
 		{% endif %}
-			{ data: "id", title: "Id" },
+			{ name: "id", data: "id", title: "Id" },
 			{ data: "username", title: "Usuario" },
 			{ data: "email", title: "Email" },
 			{ data: "first_name", title: "Nombre" },
 			{ data: "last_name", title: "Apellido" },
 			{ data: "enabled", title: "Habilitado" },
 		{% if ac.localPasswordEnabled() %}
+			{% set offset = offset + 1 %}
 			{ data: "password_expired", title: "Contraseña expirada" },
 		{% endif %}
 			{ data: "locked", title: "Bloqueado" },
-			{ data: "char_created", title: "Fecha Creación", orderData: 11},
-			{ data: "char_updated", title: "Fecha actualización", orderData: 12 },
+			{ data: "char_last_login", title: "Ultimo login", orderData: {{ last_login_pos + offset }} },
+			{ data: "char_created", title: "Fecha Creación", orderData: {{ created_pos + offset }} },
+			{ data: "char_updated", title: "Fecha actualización", orderData: {{ updated_pos + offset }}  },
+			{ data: "last_login", visible: false},
 			{ data: "created", visible: false},
 			{ data: "updated", visible: false}
 		{% if ac.localPasswordEnabled() and grants['MASK_EDIT']|default(false) %}
@@ -35,6 +46,6 @@
 		{% endif %}
 		],
 		rowId: 'id',
-		order: [[ 2, "asc" ]]
+		order: [[ {{ username_pos + offset - 1 }}, "asc" ]]
 	};
 </script>

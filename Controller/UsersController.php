@@ -48,9 +48,11 @@ class UsersController extends BaseController
 			->createQueryBuilder()
 			->select('a.id', 'a.email', 'a.username', 'a.first_name', 'a.last_name', 
 				'a.enabled', 'a.password_expired', 
-				'a.locked', 'a.created', 'a.updated', 
+				'a.locked', 'a.created', 'a.updated', 'a.last_login', 
 				DbAbs::longDatetime($conn, 'a.created') . " char_created", 
-				DbAbs::longDatetime($conn, 'a.updated') . " char_updated")
+				DbAbs::longDatetime($conn, 'a.updated') . " char_updated",
+				DbAbs::longDatetime($conn, 'a.last_login') . " char_last_login"
+				)
 			->from('ks_user', 'a');
 		return $qb;
 	}
