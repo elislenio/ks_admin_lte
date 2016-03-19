@@ -299,8 +299,7 @@ class MenuController extends BaseController
 		$menu = $em->getRepository('KsCoreBundle:Menu')->find($id);
 		
 		// Knp Menu
-		$conn = $this->get('doctrine.dbal.default_connection');
-		$knpmenu = $this->get('ks.core.menubuilder')->loadMenu($conn, $menu->getId());
+		$knpmenu = $this->get('ks.core.menubuilder')->loadMenu($menu->getId());
 		
 		// Page header
 		$hdr = array('title' => $menu->getName(), 'small' => '');
@@ -466,8 +465,7 @@ class MenuController extends BaseController
 		
 		if (! $main_menu)
 		{
-			$conn = $this->get('doctrine.dbal.default_connection');
-			$main_menu = $this->get('ks.core.menubuilder')->loadMenu($conn, 'MAIN', 'side-menu', $this->getUser()->getId());
+			$main_menu = $this->get('ks.core.menubuilder')->loadMenu('MAIN', 'side-menu', $this->getUser()->getId());
 			$this->get('session')->set('main_menu', $main_menu);
 		}
 		

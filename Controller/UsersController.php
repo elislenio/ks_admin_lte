@@ -159,14 +159,15 @@ class UsersController extends BaseController
 		if (! $this->granted('MASK_CREATE')) return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-		$form = $this->get('ks.core.user_model')->getFormCreate();
+		$user = new User();
+		$form = $this->get('ks.core.user_model')->getFormCreate($user);
 		$form->handleRequest($request);
 		
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.user_model')->insert();
+				$this->get('ks.core.user_model')->insert($user);
 				return $this->redirectToRoute('users');
 				
 			} catch (\Exception $e) {
@@ -212,7 +213,7 @@ class UsersController extends BaseController
 			
 			try{
 				
-				$this->get('ks.core.user_model')->update();
+				$this->get('ks.core.user_model')->update($user);
 				return $this->redirectToRoute('users');
 				
 			} catch (\Exception $e) {
@@ -309,7 +310,7 @@ class UsersController extends BaseController
 			
 			try{
 				
-				$this->get('ks.core.user_model')->resetPwd();
+				$this->get('ks.core.user_model')->resetPwd($user);
 				return $this->redirectToRoute('users');
 				
 			} catch (\Exception $e) {
@@ -477,14 +478,16 @@ class UsersController extends BaseController
 			return $this->render('KsAdminLteThemeBundle::denied.html.twig', array('hdr' => $hdr, 'bc' => $bc));
 		
 		// Form
-		$form = $this->get('ks.core.user_model')->getFormRoleAssign($user);
+		$user_role = new UserRole();
+		$user_role->setUserId($user->getId());
+		$form = $this->get('ks.core.user_model')->getFormRoleAssign($user_role);
 		$form->handleRequest($request);
 		
 		if ($form->isSubmitted() && $form->isValid()) {
 			
 			try{
 				
-				$this->get('ks.core.user_model')->insertRole();
+				$this->get('ks.core.user_model')->insertRole($user_role);
 				return $this->redirectToRoute('user_roles', array('id' => $id));
 				
 			} catch (\Exception $e) {
