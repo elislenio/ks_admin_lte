@@ -12,7 +12,7 @@ class RepAclController extends BaseController
 {
 	protected function getGrants()
     {
-		parent::getAcGrants('PERMISSIONS');
+		parent::getAcGrants('REP_ACL');
 		// this report is read only
 		$this->grants['MASK_CREATE'] = false;
 		$this->grants['MASK_EDIT'] = false;

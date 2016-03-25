@@ -78,6 +78,10 @@ class RepAuditController extends BaseController
 		for ($i=0; $i<count($records); $i++)
 		{
 			$data = $records[$i]['data'];
+			
+			if (gettype($data) == 'resource')
+				$data = stream_get_contents($data);
+			
 			$object_class = pathinfo($records[$i]['object_class']);
 			
 			if ($data)
@@ -94,6 +98,10 @@ class RepAuditController extends BaseController
 		switch ($key)
 		{
 			case 'data':
+				
+				if (gettype($value) == 'resource')
+					$value = stream_get_contents($value);
+				
 				return json_encode(unserialize($value));
 				break;
 			case 'object_class':
