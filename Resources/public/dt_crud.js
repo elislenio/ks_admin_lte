@@ -13,7 +13,8 @@ function CrudDT(id, dt_config, url_data, url_create, url_edit, url_delete, url_e
 	this.autoload = autoload;
 	
 	// JQuery refs
-	this.container = $('#'+id+'_container');
+	this.ui_container = $('#'+id+'_box');
+	this.dt_container = $('#'+id+'_container');
 	this.form_filters = $('#'+id+'_form_filters');
 	this.btn_filters = $('#'+id+'_btn_filters');
 	this.btn_reload = $('#'+id+'_btn_reload');
@@ -24,6 +25,16 @@ function CrudDT(id, dt_config, url_data, url_create, url_edit, url_delete, url_e
 	this.btn_adv_search = $('#'+id+'_btn_adv_search');
 	this.btn_basic_search = $('#'+id+'_btn_basic_search');
 	this.last_post_data = false;
+	
+	this.blockUI = function()
+	{
+		self.ui_container.block({ message: '<img src="/bundles/ksadminltetheme/images/abm_loader.gif" />', css: { width: '75px' }}); 
+	};
+	
+	this.unblockUI = function()
+	{
+		self.ui_container.unblock(); 
+	};
 	
 	this.editRecord = function(id)
 	{
@@ -75,8 +86,6 @@ function CrudDT(id, dt_config, url_data, url_create, url_edit, url_delete, url_e
 		}
 	});
 	
-	//var config = $.extend( {}, self.last_post_data, {crud_action: 'export'});
-	
 	dt_config.ajax = {
 		url: this.url_data,
 		type: 'POST',
@@ -85,9 +94,27 @@ function CrudDT(id, dt_config, url_data, url_create, url_edit, url_delete, url_e
 			return self.last_post_data;
 		}
 	};
-		
-	this.table = $('#'+id).DataTable(dt_config);
 	
+	// DT initialization
+	this.table = $('#'+id).DataTable(dt_config);
+	this.select_all = $('#'+this.id+'_select_all');
+	
+	// Selected / deselect all rows
+	this.select_all.change(function () {
+		
+		var rows = self.table.rows({ page: 'current' });
+		
+		if($(this).is(":checked"))
+			rows.select();
+		else
+			rows.deselect();
+	});
+	
+	// On page change event
+	this.table.on('page.dt', function () {
+		self.select_all.prop("checked",'');
+	});
+
 	// Reload Button
 	this.btn_reload.on('click', function () {
 		self.table.ajax.reload();
@@ -136,6 +163,7 @@ function CrudDT(id, dt_config, url_data, url_create, url_edit, url_delete, url_e
 				return;
 			}
 			self.table.ajax.reload();
+			self.select_all.prop("checked",'');
 		});
 	
 	});
@@ -147,7 +175,7 @@ function CrudDT(id, dt_config, url_data, url_create, url_edit, url_delete, url_e
 		
 		if (! self.autoload)
 		{
-			self.container.show();
+			self.dt_container.show();
 			self.btn_reload.prop('disabled', false);
 			self.btn_export.prop('disabled', false);
 		}
@@ -167,7 +195,7 @@ function CrudDT(id, dt_config, url_data, url_create, url_edit, url_delete, url_e
 	
 	if (! this.autoload)
 	{
-		this.container.hide();
+		this.dt_container.hide();
 		this.btn_reload.prop('disabled', true);
 		this.btn_export.prop('disabled', true);
 	}

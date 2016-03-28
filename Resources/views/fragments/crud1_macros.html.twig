@@ -1,7 +1,7 @@
-{% macro dt_checkbox(data) %}
+{% macro dt_checkbox(data, name) %}
 			{ 
 				data: "{{ data }}",
-				title: "",
+				title: '<input type="checkbox" name="{{ name }}_select_all" id="{{ name }}_select_all">',
 				width: "10px",
 				searchable: false,
 				orderable: false,

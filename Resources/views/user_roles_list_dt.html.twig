@@ -11,7 +11,7 @@
 		columns: [
 		{% if grants['MASK_DELETE']|default(false) %}
 			{% set offset = offset + 1 %}
-			{{ c1m.dt_checkbox('id') }},
+			{{ c1m.dt_checkbox('id', name) }},
 		{% endif %}
 			{ data: "user", title: "Usuario" },
 			{ data: "role", title: "Rol" },
