@@ -10,7 +10,7 @@
 			}
 {% endmacro %}
 
-{% macro dt_action_col(data, title, name, fnc, btn_title, icon) %}
+{% macro dt_action_col(data, title, name, fnc, btn_title, icon, label, class) %}
 			{ 
 				data: "{{ data }}",
 				title: "{{ title }}",
@@ -18,12 +18,12 @@
 				searchable: false,
 				orderable: false,
 				render: function (data, type, full, meta) {
-					return '<button onclick="crud_{{ name }}.{{ fnc }}(\'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="{{ btn_title }}" title="{{ btn_title }}"><span class="{{ icon }}" aria-hidden="true"></span></button>';
+					return '<button onclick="crud_{{ name }}.{{ fnc }}(\'' + data + '\')" type="button" class="{{ class|default('btn btn-default btn-xs')}}" aria-label="{{ btn_title }}" title="{{ btn_title }}"><span class="{{ icon }}" aria-hidden="true"></span> {{ label }}</button>';
 				}
 			}
 {% endmacro %}
 
-{% macro dt_action_edit(data, name) %}
+{% macro dt_action_edit(data, name, label) %}
 			{ 
 				data: "{{ data }}",
 				title: "",
@@ -31,12 +31,12 @@
 				searchable: false,
 				orderable: false,
 				render: function (data, type, full, meta) {
-					return '<button onclick="crud_{{ name }}.editRecord(\'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="Editar" title="Editar"><span class="glyphicon glyphicon-edit text-info" aria-hidden="true"></span></button>';
+					return '<button onclick="crud_{{ name }}.editRecord(\'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="Editar" title="Editar"><span class="glyphicon glyphicon-edit text-info" aria-hidden="true"></span> {{ label }}</button>';
 				}
 			}
 {% endmacro %}
 
-{% macro dt_action_delete(data, name) %}
+{% macro dt_action_delete(data, name, label) %}
 			{ 
 				data: "{{ data }}",
 				title: "",
@@ -44,12 +44,12 @@
 				searchable: false,
 				orderable: false,
 				render: function (data, type, full, meta) {
-					return '<button onclick="crud_{{ name }}.deleteRecord(\'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="Eliminar" title="Eliminar"><span class="glyphicon glyphicon-trash text-danger" aria-hidden="true"></span></button>';
+					return '<button onclick="crud_{{ name }}.deleteRecord(\'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="Eliminar" title="Eliminar"><span class="glyphicon glyphicon-trash text-danger" aria-hidden="true"></span>{{ label }}</button>';
 				}
 			}
 {% endmacro %}
 
-{% macro dt_expand_control(name) %}
+{% macro dt_expand_control(name, label) %}
 			{ 
 				data: null,
 				title: "",
@@ -57,7 +57,7 @@
 				searchable: false,
 				orderable: false,
 				render: function (data, type, full, meta) {
-					return '<button onclick="crud_{{ name }}.expandRecord(event, \'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="Ver más" title="Ver más"><span class="glyphicon glyphicon-zoom-in text-info" aria-hidden="true"></span></button>';
+					return '<button onclick="crud_{{ name }}.expandRecord(event, \'' + data + '\')" type="button" class="btn btn-default btn-xs" aria-label="Ver más" title="Ver más"><span class="glyphicon glyphicon-zoom-in text-info" aria-hidden="true"></span>{{ label }}</button>';
 				}
 			}
 {% endmacro %}

@@ -36,6 +36,11 @@ function CrudDT(id, dt_config, url_data, url_create, url_edit, url_delete, url_e
 		self.ui_container.unblock(); 
 	};
 	
+	this.reload = function()
+	{
+		self.table.ajax.reload();
+	};
+	
 	this.editRecord = function(id)
 	{
 		$(location).attr('href', this.url_edit + "/" + id);

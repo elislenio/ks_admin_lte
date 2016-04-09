@@ -54,12 +54,10 @@ function deleteRecord(id)
 		dataType: 'json',
 		data: v_data
 	}).done(function(data) {
-		if( data.result == 'error')
-		{
-			show_error('error');
-			return;
-		}
-		location.reload();
+		if (data.result != 'ok')
+			show_error(data.result);
+		else
+			location.reload();
 	});
 }
 </script>

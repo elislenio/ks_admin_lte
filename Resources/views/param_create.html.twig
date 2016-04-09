@@ -1,0 +1,21 @@
+{% extends 'KsAdminLteThemeBundle::index.html.twig' %}
+
+{% block pageheader %}{{ theme.page_header(hdr|default(false)) }}{% endblock %}
+{% block breadcrumb %}{{ theme.breadcrumb(bc|default(false)) }}{% endblock %}
+
+{% block content %}
+<div class="box">
+	<div class="box-body">
+	  <div class="row">
+		<div class="col-md-8">
+			{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+			{{ form_row(form.id) }}
+			{{ form_row(form.value, {'label': 'Valor'}) }}
+			{{ form_row(form.description, {'label': 'Descripción'}) }}
+			{{ form_row(form.save, {'label': 'Guardar'}) }}
+			{{ form_end(form) }}
+		</div>
+	  </div> 
+	</div>
+</div>
+{% endblock %}

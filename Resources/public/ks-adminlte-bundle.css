@@ -31,12 +31,8 @@
   }
 }
 
-table.dataTable.table-condensed>thead>tr>th {
-	padding-right: 5px;
-}
-
 table.dataTable.table-condensed>thead>tr>th>input {
-	margin-left: 2px;
+	margin-left: 17px;
 }
 
 /* DT Child Rows */

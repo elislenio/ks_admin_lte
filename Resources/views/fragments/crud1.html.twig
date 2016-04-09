@@ -1,42 +1,54 @@
 {% import 'KsAdminLteThemeBundle:fragments:crud1_macros.html.twig' as c1m %}
 {% set name = crud['name'] %}
-{% set grants = crud['grants'] %}
 {% set urls = crud['urls'] %}
-{% set filters = crud['filters'] %}
-{% set l_buttons = crud['l_buttons']|default({}) %}
-{% set r_buttons = crud['r_buttons']|default({}) %}
+{% set filters = crud['filters']|default(false) %}
+{% set buttons = crud['buttons']|default(false) %}
+{% set l_buttons = crud['l_buttons']|default(false) %}
+{% set r_buttons = crud['r_buttons']|default(false) %}
+{% set can_create = ( crud['urls']['create']|default(false) and crud['grants']['MASK_CREATE']|default(false) ) %}
+{% set can_delete = ( crud['urls']['delete']|default(false) and crud['grants']['MASK_DELETE']|default(false) ) %}
 
 <div class="panel panel-primary" id="{{ crud['name'] }}_box">
   <div class="panel-body">
 	
 	<div class="btn-toolbar" role="toolbar" aria-label="Toolbar" style="margin-bottom: 10px;">
 	  <div class="btn-group" role="group" aria-label="left group">
-		<button id="{{ name }}_btn_filters" type="button" class="btn btn-default" aria-label="Buscar" title="Buscar" data-toggle="collapse" data-target="#{{ name }}_collapseFilters" aria-expanded="false" aria-controls="{{ name }}_collapseFilters"><span class="glyphicon glyphicon-filter text-info" aria-hidden="true"></span></button>
-		<button id="{{ name }}_btn_reload" type="button" class="btn btn-default" aria-label="Recargar" title="Recargar los datos"><span class="glyphicon glyphicon-refresh text-info" aria-hidden="true"></span></button>
-		<button id="{{ name }}_btn_export" type="button" class="btn btn-default" aria-label="Exportar" title="Exportar los datos"><span class="glyphicon glyphicon-download-alt text-info" aria-hidden="true"></span></button>
-	  {% for b in l_buttons %}
 	
-		{% if grants[b['grant']] %}
-			<button id="{{ name }}_{{ b['name'] }}" type="button" class="btn btn-default" aria-label="{{ b['label'] }}" title="{{ b['label'] }}"><span class="{{ b['icon'] }}" aria-hidden="true"></span><span class="responsive-btn-text"> {{ b['label'] }}</span></button>
+	{% if filters %}
+		<button id="{{ name }}_btn_filters" type="button" class="btn btn-default" aria-label="Buscar" title="Buscar" data-toggle="collapse" data-target="#{{ name }}_collapseFilters" aria-expanded="false" aria-controls="{{ name }}_collapseFilters"><span class="glyphicon glyphicon-filter text-info" aria-hidden="true"></span></button>
+	{% endif %}
+		<button id="{{ name }}_btn_reload" type="button" class="btn btn-default" aria-label="Recargar" title="Recargar los datos"><span class="glyphicon glyphicon-refresh text-info" aria-hidden="true"></span></button>
+	{% if urls['export']|default(false) %}
+		<button id="{{ name }}_btn_export" type="button" class="btn btn-default" aria-label="Exportar" title="Exportar los datos"><span class="glyphicon glyphicon-download-alt text-info" aria-hidden="true"></span></button>
+	{% endif %}
+	{% for b in l_buttons %}
+	
+		{% if crud['grants'][b['grant']] %}
+			<button id="{{ name }}_{{ b['name'] }}" type="button" class="btn btn-default" aria-label="{{ b['label'] }}" title="{{ b['title']|default(b['label']) }}"><span class="{{ b['class']|default('') }}" aria-hidden="true"></span><span class="responsive-btn-text"> {{ b['label'] }}</span></button>
 		{% endif %}
 	
-	  {% endfor %}
+	{% endfor %}
 	  </div>
 	  
 	  <div class="btn-group pull-right" role="group" aria-label="middle group">
 	{% for b in r_buttons %}
-	
-		{% if grants[b['grant']] %}
-			<button id="{{ name }}_{{ b['name'] }}" type="button" class="btn btn-default" aria-label="{{ b['label'] }}" title="{{ b['label'] }}"><span class="{{ b['icon'] }}" aria-hidden="true"></span><span class="responsive-btn-text"> {{ b['label'] }}</span></button>
+		{% if crud['grants'][b['grant']] %}
+			<button id="{{ name }}_{{ b['name'] }}" type="button" class="btn btn-default" aria-label="{{ b['label'] }}" title="{{ b['title']|default(b['label']) }}"><span class="{{ b['class']|default('') }}" aria-hidden="true"></span><span class="responsive-btn-text"> {{ b['label'] }}</span></button>
 		{% endif %}
 	
 	{% endfor %}
 	
-	{% if grants['MASK_CREATE'] %}
-		<button id="{{ name }}_btn_add" type="button" class="btn btn-default" aria-label="Agregar" title="Agregar un registro"><span class="glyphicon glyphicon-plus text-info" aria-hidden="true"></span><span class="responsive-btn-text"> Agregar</span></button>
+	{% if can_create %}
+		{% set label = buttons['add']['label']|default('Agregar') %}
+		{% set title = buttons['add']['title']|default('Agregar un registro') %}
+		{% set class = buttons['add']['class']|default('glyphicon glyphicon-plus text-info') %}
+		<button id="{{ name }}_btn_add" type="button" class="btn btn-default" aria-label="{{ label }}" title="{{ title }}"><span class="{{ class }}" aria-hidden="true"></span><span class="responsive-btn-text"> {{ label }}</span></button>
 	{% endif %}
-	{% if grants['MASK_DELETE'] %}
-		<button id="{{ name }}_btn_delete" type="button" class="btn btn-default" aria-label="Eliminar" title="Eliminar registros seleccionados"><span class="glyphicon glyphicon-trash text-danger" aria-hidden="true"></span><span class="responsive-btn-text"> Eliminar</span></button>
+	{% if can_delete %}
+		{% set label = buttons['delete']['label']|default('Eliminar') %}
+		{% set title = buttons['delete']['title']|default('Eliminar registros seleccionados') %}
+		{% set class = buttons['delete']['class']|default('glyphicon glyphicon-trash text-danger') %}
+		<button id="{{ name }}_btn_delete" type="button" class="btn btn-default" aria-label="{{ label }}" title="{{ title }}"><span class="{{ class }}" aria-hidden="true"></span><span class="responsive-btn-text"> {{ label }}</span></button>
 	{% endif %}
 	  </div>
 	</div>
@@ -107,7 +119,7 @@
 		  <thead></thead>
 		  <tbody></tbody>
 		</table>
-	<div>
+	</div>
 	
   </div><!-- /.panel-body -->
 </div> <!-- /.panel -->

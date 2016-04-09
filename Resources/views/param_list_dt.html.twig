@@ -1,0 +1,34 @@
+{% import 'KsAdminLteThemeBundle:fragments:crud1_macros.html.twig' as c1m %}
+{% set grants = crud['grants'] %}
+{% set name = crud['name'] %}
+
+{# dinamic columns #}
+{% set offset = 0 %}
+{% set id_pos = 0 %}
+{% set created_pos = 5 %}
+{% set updated_pos = 6 %}
+<script>
+	var {{name}}_dt_config = {
+		columns: [
+		{% if grants['MASK_DELETE']|default(false) %}
+			{% set offset = offset + 1 %}
+			{{ c1m.dt_checkbox('id', name) }},
+		{% endif %}
+			{ data: "id", title: "Id" },
+			{ data: "value", title: "Valor" },
+			{ data: "description", title: "Descripción" },
+			{ data: "char_created", title: "Fecha Creación", orderData: {{ created_pos + offset }} },
+			{ data: "char_updated", title: "Fecha actualización", orderData: {{ updated_pos + offset }} },
+			{ data: "created", visible: false},
+			{ data: "updated", visible: false}
+		{% if grants['MASK_EDIT']|default(false) %}
+			,{{ c1m.dt_action_edit('id', name) }}
+		{% endif %}
+		{% if grants['MASK_DELETE']|default(false) %}
+			,{{ c1m.dt_action_delete('id', name) }}
+		{% endif %}
+		],
+		rowId: 'id',
+		order: [[ {{ id_pos + offset }}, "asc" ]]
+	};
+</script>
