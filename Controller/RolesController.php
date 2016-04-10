@@ -169,8 +169,7 @@ class RolesController extends BaseController
     public function editAction(Request $request, $id)
     {
 		// Role
-		$em = $this->getDoctrine()->getManager();
-		$role = $em->getRepository('KsCoreBundle:Role')->find($id);
+		$role = $this->get('ks.core.role_model')->get($id);
 		
 		// Page header
 		$hdr = array('title' => 'Editar Rol', 'small' => 'Id: ' . $role->getId());
@@ -218,13 +217,11 @@ class RolesController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_DELETE')) return Ajax::responseDenied();
 		
-		$em = $this->getDoctrine()->getManager();
-		
 		try {
 			
 			foreach ($request->request->get('ids') as $id)
 			{
-				$role = $em->getRepository('KsCoreBundle:Role')->find($id);
+				$role = $this->get('ks.core.role_model')->get($id);
 				$this->get('ks.core.role_model')->delete($role);
 			}
 			
@@ -312,8 +309,7 @@ class RolesController extends BaseController
     public function aclAction(Request $request, $id)
     {
 		// Role
-		$em = $this->getDoctrine()->getManager();
-		$role = $em->getRepository('KsCoreBundle:Role')->find($id);
+		$role = $this->get('ks.core.role_model')->get($id);
 		
 		// Page header
 		$hdr = array('title' => 'Permisos para ' . $role->getDescription(), 'small' => '');
@@ -396,8 +392,7 @@ class RolesController extends BaseController
     public function aclCreateAction(Request $request, $id)
     {
 		//Role
-		$em = $this->getDoctrine()->getManager();
-		$role = $em->getRepository('KsCoreBundle:Role')->find($id);
+		$role = $this->get('ks.core.role_model')->get($id);
 		
 		// Page header
 		$hdr = array('title' => 'Rol: ' . $role->getDescription(), 'small' => 'Agregar permisos');
@@ -446,8 +441,7 @@ class RolesController extends BaseController
     public function aclEditAction(Request $request, $id)
     {
 		// Acl
-		$em = $this->getDoctrine()->getManager();
-		$acl = $em->getRepository('KsCoreBundle:AccessControlList')->find($id);
+		$acl = $this->get('ks.core.role_model')->getACL($id);
 		$acl->parseMask();
 		
 		// Page header
@@ -497,13 +491,11 @@ class RolesController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_DELETE')) return Ajax::responseDenied();
 		
-		$em = $this->getDoctrine()->getManager();
-		
 		try {
 			
 			foreach ($request->request->get('ids') as $id)
 			{
-				$acl = $em->getRepository('KsCoreBundle:AccessControlList')->find($id);
+				$acl = $this->get('ks.core.role_model')->getACL($id);
 				$this->get('ks.core.role_model')->deleteAcl($acl);
 			}
 			

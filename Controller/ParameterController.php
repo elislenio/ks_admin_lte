@@ -168,9 +168,8 @@ class ParameterController extends BaseController
      */
     public function editAction(Request $request, $id)
     {
-		// Funcion
-		$em = $this->getDoctrine()->getManager();
-		$param = $em->getRepository('KsCoreBundle:Parameter')->find($id);
+		// Parameter
+		$param = $this->get('ks.core.parameter_model')->get($id);
 		
         // Page header
 		$hdr = array('title' => 'Editar Parametro', 'small' => 'Id: ' . $param->getId());
@@ -217,14 +216,12 @@ class ParameterController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_DELETE')) return Ajax::responseDenied();
 		
-		$em = $this->getDoctrine()->getManager();
-		
 		try {
 			
 			foreach ($request->request->get('ids') as $id)
 			{
-				$ac = $em->getRepository('KsCoreBundle:Parameter')->find($id);
-				$this->get('ks.core.parameter_model')->delete($ac);
+				$param = $this->get('ks.core.parameter_model')->get($id);
+				$this->get('ks.core.parameter_model')->delete($param);
 			}
 			
 		} catch (\Exception $e) {

@@ -167,8 +167,7 @@ class AcController extends BaseController
     public function editAction(Request $request, $id)
     {
 		// Funcion
-		$em = $this->getDoctrine()->getManager();
-		$ac = $em->getRepository('KsCoreBundle:AccessControl')->find($id);
+		$ac = $this->get('ks.core.ac_model')->get($id);
 		
         // Page header
 		$hdr = array('title' => 'Editar Función', 'small' => 'Id: ' . $ac->getId());
@@ -215,13 +214,11 @@ class AcController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_DELETE')) return Ajax::responseDenied();
 		
-		$em = $this->getDoctrine()->getManager();
-		
 		try {
 			
 			foreach ($request->request->get('ids') as $id)
 			{
-				$ac = $em->getRepository('KsCoreBundle:AccessControl')->find($id);
+				$ac = $this->get('ks.core.ac_model')->get($id);
 				$this->get('ks.core.ac_model')->delete($ac);
 			}
 			

@@ -87,8 +87,7 @@ class SecurityController extends BaseController
 			try{
 				
 				$data = $form->getData();
-				$em = $this->getDoctrine()->getManager();
-				$user = $em->getRepository('KsCoreBundle:User')->findOneBy(array('username' => $username));
+				$user = $this->get('ks.core.user_model')->getByUsername($username);
 				$this->get('ks.core.user_model')->setPasswordSelf($user, $data['password']);
 				$this->get('session')->getFlashBag()->add('success', 'La contraseña se cambió con éxito.');
 				return $this->redirectToRoute('login');

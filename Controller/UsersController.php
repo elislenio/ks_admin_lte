@@ -189,8 +189,7 @@ class UsersController extends BaseController
     public function editAction(Request $request, $id)
     {
 		// User
-		$em = $this->getDoctrine()->getManager();
-		$user = $em->getRepository('KsCoreBundle:User')->find($id);
+		$user = $this->get('ks.core.user_model')->get($id);
 		
 		// Page header
 		$hdr = array('title' => 'Editar Usuario', 'small' => 'Id: ' . $user->getId());
@@ -238,13 +237,11 @@ class UsersController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_DELETE')) return Ajax::responseDenied();
 		
-		$em = $this->getDoctrine()->getManager();
-		
 		try {
 			
 			foreach ($request->request->get('ids') as $id)
 			{
-				$user = $em->getRepository('KsCoreBundle:User')->find($id);
+				$user = $this->get('ks.core.user_model')->get($id);
 				$this->get('ks.core.user_model')->delete($user);
 			}
 			
@@ -286,8 +283,7 @@ class UsersController extends BaseController
     public function pwdResetAction(Request $request, $id)
     {
 		// User
-		$em = $this->getDoctrine()->getManager();
-		$user = $em->getRepository('KsCoreBundle:User')->find($id);
+		$user = $this->get('ks.core.user_model')->get($id);
 		
 		// Page header
 		$hdr = array('title' => 'Restablecer contraseña', 'small' => $user->getUsername());
@@ -369,8 +365,7 @@ class UsersController extends BaseController
     public function rolesAction(Request $request, $id)
     {
 		// User
-		$em = $this->getDoctrine()->getManager();
-		$user = $em->getRepository('KsCoreBundle:User')->find($id);
+		$user = $this->get('ks.core.user_model')->get($id);
 		
 		// Page header
 		$hdr = array('title' => 'Roles de ' . $user->getUsername(), 'small' => '');
@@ -419,19 +414,12 @@ class UsersController extends BaseController
      */
     public function rolesExportAction(Request $request)
     {
-		// User
-		$user_id = $this->get('ks.core.dt_report')->getExtraSearchValue($request, 'f_user');
-				
-		$em = $this->getDoctrine()->getManager();
-		$user = $em->getRepository('KsCoreBundle:User')->find($user_id);
-		
 		// Page header
-		$hdr = array('title' => 'Roles de ' . $user->getUsername(), 'small' => '');
+		$hdr = array('title' => 'Roles de usuario', 'small' => '');
 		
 		// Breadcrumb
 		$bc = array();
-		$bc[] = array('route' => $this->get('router')->generate('users'), 'description'=>'Usuarios');
-		$bc[] = array('route' => $this->get('router')->generate('user_roles', array('id' => $user_id)), 'description' => $user->getUsername());
+		$bc[] = array('route' => $this->get('router')->generate('users'), 'description'=>'Roles de usuario');
 		
 		// Access Control
 		$this->getGrants();
@@ -460,8 +448,7 @@ class UsersController extends BaseController
     public function roleAssignAction(Request $request, $id)
     {
 		// User
-		$em = $this->getDoctrine()->getManager();
-		$user = $em->getRepository('KsCoreBundle:User')->find($id);
+		$user = $this->get('ks.core.user_model')->get($id);
 		
 		// Page header
 		$hdr = array('title' => 'Usuario: ' . $user->getUsername(), 'small' => 'Agregar rol');
@@ -512,14 +499,12 @@ class UsersController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_DELETE')) return Ajax::responseDenied();
 		
-		$em = $this->getDoctrine()->getManager();
-		
 		try {
 			
 			foreach ($request->request->get('ids') as $id)
 			{
-				$ur = $em->getRepository('KsCoreBundle:UserRole')->find($id);
-				$this->get('ks.core.user_model')->deleteRole($ur);
+				$user_role = $this->get('ks.core.user_model')->getUserRole($id);
+				$this->get('ks.core.user_model')->deleteRole($user_role);
 			}
 			
 		} catch (\Exception $e) {

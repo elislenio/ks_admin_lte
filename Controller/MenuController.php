@@ -173,8 +173,7 @@ class MenuController extends BaseController
     public function editAction(Request $request, $id)
     {
 		// Menu
-		$em = $this->getDoctrine()->getManager();
-		$menu = $em->getRepository('KsCoreBundle:Menu')->find($id);
+		$menu = $this->get('ks.core.menu_model')->get($id);
 		
         // Page header
 		$hdr = array('title' => 'Editar Menu', 'small' => 'Id: ' . $menu->getId());
@@ -221,13 +220,11 @@ class MenuController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_DELETE')) return Ajax::responseDenied();
 		
-		$em = $this->getDoctrine()->getManager();
-		
 		try {
 			
 			foreach ($request->request->get('ids') as $id)
 			{
-				$menu = $em->getRepository('KsCoreBundle:Menu')->find($id);
+				$menu = $this->get('ks.core.menu_model')->get($id);
 				$this->get('ks.core.menu_model')->delete($menu);
 			}
 			
@@ -295,8 +292,7 @@ class MenuController extends BaseController
     public function menuitemsAction(Request $request, $id)
     {
 		// Menu
-		$em = $this->getDoctrine()->getManager();
-		$menu = $em->getRepository('KsCoreBundle:Menu')->find($id);
+		$menu = $this->get('ks.core.menu_model')->get($id);
 		
 		// Knp Menu
 		$knpmenu = $this->get('ks.core.menubuilder')->loadMenu($menu->getId());
@@ -332,8 +328,7 @@ class MenuController extends BaseController
     public function itemCreateAction(Request $request, $id)
     {
 		// Menu
-		$em = $this->getDoctrine()->getManager();
-		$menu = $em->getRepository('KsCoreBundle:Menu')->find($id);
+		$menu = $this->get('ks.core.menu_model')->get($id);
 		
 		// Page header
 		$hdr = array('title' => $menu->getName(), 'small' => 'Agregar elemento');
@@ -384,9 +379,7 @@ class MenuController extends BaseController
     public function itemEditAction(Request $request, $id)
     {
 		// Menu
-		$em = $this->getDoctrine()->getManager();
-		$menu_item = $em->getRepository('KsCoreBundle:MenuItem')->find($id);
-		
+		$menu_item = $this->get('ks.core.menu_model')->getItem($id);
 		$menu = $menu_item->getMenu();
 		$menu_id = $menu_item->getMenuId();
 		
@@ -436,13 +429,11 @@ class MenuController extends BaseController
 		$this->getGrants();
 		if (! $this->granted('MASK_DELETE')) return Ajax::responseDenied();
 		
-		$em = $this->getDoctrine()->getManager();
-		
 		try {
 			
 			foreach ($request->request->get('ids') as $id)
 			{
-				$menu_item = $em->getRepository('KsCoreBundle:MenuItem')->find($id);
+				$menu_item = $this->get('ks.core.menu_model')->getItem($id);
 				$this->get('ks.core.menu_model')->deleteItem($menu_item);
 			}
 			
